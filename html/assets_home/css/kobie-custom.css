@@ -1,0 +1,94 @@
+/* Kobie Design Custom Overrides for Task Tracker */
+
+/* Remove top spacing from header and container - make it flush with top */
+#kobie-header,
+.nxl-header {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  top: 0 !important;
+}
+
+/* Change header text to black */
+.nxl-header,
+.nxl-header .header-left,
+.nxl-header .header-right,
+.nxl-header h5,
+.nxl-header .text-white,
+.nxl-header .fw-bold,
+.nxl-header .dropdown-toggle {
+  color: #000 !important;
+}
+
+.nxl-header .text-white-50 {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+#kobie-content-wrapper,
+.nxl-container {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.page-wrapper {
+  padding-top: 0 !important;
+}
+
+.main-container {
+  padding-top: 0 !important;
+}
+
+/* Sidebar footer link styling */
+.sidebar-footer-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s;
+}
+
+.sidebar-footer-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Ensure loading indicator is hidden by default */
+.htmx-indicator {
+  display: none;
+}
+
+/* Avatar image in header */
+.avatar-image {
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+}
+
+/* Footer styling */
+.nxl-footer {
+  padding: 1rem;
+  background: #f5f7fa;
+  border-top: 1px solid #e5e7eb;
+}
+
+.nxl-footer .footer-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Active menu item styling enhancement */
+.nxl-navbar .nxl-item.active .nxl-link {
+  background: rgba(99, 102, 241, 0.1);
+  border-left: 3px solid #6366f1;
+}
+
+/* Main content padding */
+.main-content {
+  padding: 1.5rem;
+}

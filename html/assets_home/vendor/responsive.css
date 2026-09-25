@@ -1,0 +1,151 @@
+@media (min-width: 1201px) and (max-width: 1366px) {
+.btn-home-bg-two{
+	bottom: 30px;
+}
+}
+
+@media(max-width: 991px) {
+
+#main_nav li a {
+    font-size: 10px;
+    padding: 6px 9px;
+}
+.btn-home-bg-two{
+	bottom: 25px;
+    margin-left: 20px;
+}	
+.single_service h2 {
+    font-size: 23px;
+}
+.service_divided {
+    margin-left: 80px;
+}
+.video_text p {
+    font-size: 14px;
+}
+.video_text ul li {
+    font-size: 12px;
+}
+.review-carousel .review-meta .thumb {
+    margin-left: 434px;
+}
+.team .social li {
+    margin: 4px 8px;
+}
+.faq h6 {
+    font-size: 11px;
+	margin-top: -5px;
+}
+.faq.faq_style ul li p {
+    font-size: 12px;
+}
+.blog-cat {
+    left: 231px;
+}
+.blog-media > img {
+    height: 220px;
+}
+#image-blog .active img {
+    height: 220px;
+}
+.carousel-inner {
+    height: 220px;
+}
+.contact .form_area {
+    margin-right: 40px;
+}
+
+	
+}
+
+/* small mobile :320px. */
+@media (max-width: 768px) {
+
+#main_nav li a{
+    font-size: 10px;
+    padding: 4px 6px;
+    background: #000;
+}
+.hero-text .btn-home-bg-one{
+	margin-bottom: 30px;
+}
+.btn-home-bg-two{
+	margin-top: -25px;
+}
+.hero-text .btn-home-bg-one{
+	margin-right: 0px;
+}
+.dl_btn{
+	margin-left: 0px;
+}
+.single_service {
+    margin-top: 170px;
+}
+.service_divided {
+    margin-left: 335px;
+}
+.review-carousel .review-meta .thumb {
+    margin-left: 325px;
+}
+.section-header-white p{
+	margin-left: 0px
+} 
+.dlButton{
+	margin-bottom: 30px;
+}
+.pricing-plan-name {
+    padding: 0px 25px;
+}
+.pricing-plan-price h2 {
+    font-size: 45px;
+}
+.pricing-plan-body {
+    padding-top: 0;
+}
+.pricing-plan-body ul li {
+    font-size: 12px;
+    line-height: 43px;
+}
+.select-pricing-plan .pricing-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+}
+	
+}
+
+@media only screen and (max-width:480px) { 
+
+.navbar-toggle {
+    margin-top: 0px;
+}
+.service_divided {
+    margin-left: 215px;
+}
+.review-carousel .review-meta .thumb {
+    margin-left: 210px;
+}
+.single-pricing-plan{
+    margin-top: 45px;
+}
+.team article{
+    margin-top: 25px;
+}
+.counter_divided{
+    margin-left: 222px;
+}
+.contact .btn{
+    margin-left: 0px;
+}
+.contact .form_area {
+    margin-right: -12px;
+}
+.section-header p {
+    font-size: 12px;
+    margin-left: 0;
+}
+.section-header h2 {
+    font-size: 27px;
+    margin-left: -12px;
+}
+
+}

@@ -1,0 +1,59 @@
+
+#style-switcher h2 a { background: #07aaa5 none repeat scroll 0 0 ;}
+
+.btn-home-bg-one,
+.btn-home-bg-two:hover,
+.btn-home-bg-two:focus,
+#download a:hover,
+.select-package a:hover,
+.team-social-list a:hover,
+input[type="submit"], button, .radon ,
+.social_icons ul li a{
+	background: #07aaa5 none repeat scroll 0 0;
+	border-color:  #07aaa5;
+}
+
+.feature_icon,
+.service_icon,
+.owl-dot.active,
+#download
+{
+	background: #07aaa5;
+}
+.single_service:hover .service_text h4,
+.section_header_color h2,
+.testimonial-text h4,
+.pricing-head .price,
+.crosstab_details h4,
+i.list,
+.counter_area i.fa,
+.question h4,
+.team-details h3,
+.blog_comments a.light-text i,
+.contact-info i,
+#main_nav li a:hover, #main_nav li a:focus, #main_nav li.current a,
+#download a,
+#download a i,
+.blog_single .blog_single_description h3 a:hover{
+	color: #07aaa5;
+}
+.service_icon{
+	outline: 2px solid #07aaa5;
+}
+
+.select-package a,
+.team-social-list a  {
+    border-color: #07aaa5;
+    color: #07aaa5;
+}
+
+.nav-justified > li.active a h5 {
+    background: #07aaa5;
+}
+.crosstab  {
+    border-color:  #07aaa5;
+}
+.nav.nav-justified>li:before {
+    border-color:  #07aaa5 transparent transparent transparent;
+}
+

@@ -1,0 +1,11 @@
+/vendor/
+composer
+composer.phar
+
+# Per-server settings and runtime logs
+config/local.php
+logs/*
+!logs/.gitkeep
+
+# Session transcripts (written by a hook; contain secrets)
+docs/claude-log/

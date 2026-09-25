@@ -1,0 +1,18 @@
+# Form Checkbox Radio
+
+Bootstrap component documentation and examples.
+
+## Overview
+
+This page demonstrates form checkbox radio Bootstrap components and patterns.
+
+## Common Use Cases
+
+- Implementing form checkbox radio components in your application
+- Styling form checkbox radio with Bootstrap utility classes
+- Creating consistent UI patterns and designs
+
+## Bootstrap Documentation
+
+For more detailed information, visit:
+https://getbootstrap.com/docs/5.3/components/

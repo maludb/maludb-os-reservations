@@ -1,0 +1,16 @@
+{
+    "name": "zozocal/restaurant",
+    "description": "ZozoCal Restaurant Reservation System",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Edward Honour",
+            "email": "ehonour@abbsi.ai"
+        }
+    ],
+    "require": {
+        "mailersend/mailersend": "^0.36.0",
+        "php-http/guzzle7-adapter": "^1.1",
+        "guzzlehttp/guzzle": "^7.10"
+    }
+}

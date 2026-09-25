@@ -1,0 +1,14 @@
+# ZozoCal scheduled jobs — install as the web user so log files stay writable:
+#   sudo crontab -u www-data docs/deploy/crontab
+# (replaces www-data's crontab; merge by hand if it already has entries)
+# Change /var/www if the app lives elsewhere. Times are server time.
+
+# Invoices: create on each restaurant's billing day, then mark unpaid ones overdue
+5 2 * * *   php /var/www/html/cron/generate-invoices.php >> /var/www/logs/cron-invoices.log 2>&1
+15 2 * * *  php /var/www/html/cron/mark-overdue.php      >> /var/www/logs/cron-invoices.log 2>&1
+
+# Guest reservation reminders (hourly)
+0 * * * *   php /var/www/helpers/send-reminders.php      >> /var/www/logs/cron-reminders.log 2>&1
+
+# Outbound voice messages via Retell (every minute)
+* * * * *   php /var/www/scripts/process-voice-messages.php --limit=10 >> /var/www/logs/voice-messages-cron.log 2>&1
