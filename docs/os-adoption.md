@@ -124,3 +124,53 @@ The owner decided every open item on 2026-09-28, each as recommended.
 ## 3. What the adoption owes afterwards (the rest of the contract, not built here)
 The activity log shipped to MaluDB, the `mcp_*` views and the two MCP servers (records, activity), the keys
 moved to the kernel, an expert agent. Named here so nobody builds substitutes.
+
+## 4. What was built (2026-09-28, branch `os-adoption`)
+
+**Security first (Step 1)** — S1–S12 of §1.6, one commit each (S3 with S6), proven by `tests/os-adoption/security-*.php`
+(46 checks). New settings: `EMAIL_WEBHOOK_SECRET` (the inbound-mail URL carries `?key=`), `DEMO_ENABLED`.
+
+**The adapter (Step 2)**, in the plugin's order:
+| Piece | Where |
+|---|---|
+| Link columns, sign-on tables, roles catalogue (re-runnable) | `docs/sql/os_adoption.sql` — the third file every install loads |
+| Token verifiers, session list, linking, grants, sites → restaurants, the feed | `helpers/os.php` |
+| `/sso`, `/sso/logout` | `html/sso.php`, `html/sso/logout.php` (the vhost rewrites the paths) |
+| The guard | `requireAuth()` → `os_guard()`: listed session, linked active user, restaurant still held |
+| Local sign-in closed | login, register, forgot/reset, Google, invitation (pages and partials), API password login → the launcher |
+| Read-only people and restaurants | staff, platform users, restaurants: screens say "Managed in the operating system"; the services refuse (`MANAGED_BY_OS`, 403) so REST and MCP refuse too |
+| API keys | only for a linked user in a restaurant the kernel still grants |
+| Directory sync | `scripts/os-directory-sync.php` (`--full`, `--from-file`), timer `deploy/reservations-directory-sync.timer` |
+| Roles to the kernel | `app_roles` on `/api/mcp/admin.php`, kernel token only; the kernel's own validator accepts the document |
+| Registration | `maludb-os.json`, `html/api/v1/health.php`, `db/` (links to `docs/sql/` + grants), `deploy/` (vhost template, three timers) |
+| Building without a kernel | `scripts/os-dev-handoff.php`, `scripts/os-dev-directory.json` |
+
+How ZozoCal's tables carry the kernel's model: `users` is the mirror (`os_member_id`); a grant is a
+`user_restaurants` row with `source = 'os'` and the highest ZozoCal role of the grant; a site is a restaurant
+(`os_scope_id`), created seeded as any new restaurant (`svc_platform_restaurant_seed`), its name, time zone and
+address following the kernel's, closed (never deleted) when the site is removed. The kernel's super-admin signs on as
+ZozoCal's `super-admin` and reaches restaurants only through the grants the kernel lists (admin everywhere).
+
+**Proven (Step 3)** on a scratch copy (`tests/os-adoption/`): with `OS_ENABLED` off, every security proof,
+`api-smoke` and `check-install` exactly as at baseline, password sign-in works; with it on, `os-sign-on.php`'s 72 checks
+— every other way in goes to the launcher; replay, audience, expiry, wrong key and tampered claims refused; an existing
+user linked by email once and a second holder of the email refused; the chosen restaurant opens, one not held is refused
+(a stray local membership row included); read-only screens, services and REST; revocation and suspension end sessions
+and API keys; a new site becomes a seeded restaurant, a removed one closes with its data; sign-out notices; `app_roles`
+for the kernel only; health. The kernel's installer `plan` against this branch: 21 steps, no stop.
+
+## 5. The owner's steps, and what the contract still owes
+
+**To install** (the owner's; `apply` is root):
+1. Merge `os-adoption` (or keep it checked out: the installer clones the checked-out branch from a directory).
+2. `sudo php bin/app_install.php apply /home/maludb/ZozoCal-Restaurant --scheme https` in the kernel — **https**,
+   because Twilio signs the https URL it calls and Retell is given `APP_URL` for its MCP link.
+3. DNS and the proxy entry for `reservations.<domain>`; in the kernel, add the sites on the application's Scopes tab
+   and grant people their roles per site.
+4. Per restaurant, in ZozoCal: its own Retell, Twilio, MailerSend and OpenAI keys (Settings → Integrations); the
+   inbound-mail provider's URL with `?key=<EMAIL_WEBHOOK_SECRET>`; Twilio's webhook at `<APP_URL>/api/sms/webhook.php`.
+
+**Still owed to the contract** (named, not built): the activity log shipped to MaluDB; `mcp_*` views and the records
+and activity MCP servers (agents cannot reach ZozoCal yet — every endpoint is `agent_reachable: false`); the model and
+provider keys moved to the kernel (deferred by the owner); an expert agent; forgot/reset password (broken before the
+adoption, closed under the OS anyway).

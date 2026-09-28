@@ -3397,3 +3397,12 @@ page into the database for the url of https://zozocal.com"
 - S1 invitation code (new `docs/sql/os_adoption.sql`, now the third install file; check-install checks it) · S2 no password or name change on someone with access elsewhere · S3+S6 Retell signatures on every Retell endpoint (Retell's `v=<ms>,d=<hmac>` scheme) with the restaurant's own key, and no restaurant ever uses another's key · S4 Twilio signature (verified against Twilio's documented example) · S5 email webhook secret URL (`EMAIL_WEBHOOK_SECRET`) · S7 diagnostic pages removed · S8 agent import admin-only · S9 demo behind `DEMO_ENABLED` · S10 cron CLI-only · S11 CSRF on the restaurant switch · S12 no secrets or personal data in logs. One commit each (S3 and S6 together: same function).
 - Proven by scripted HTTP checks against the test copy (46 checks, all pass); `api-smoke` and `check-install` as at baseline.
 - New per-server settings: `EMAIL_WEBHOOK_SECRET` (the inbound-mail provider's URL must now carry `?key=`), `DEMO_ENABLED`. Live installs must re-enter nothing else; a Retell or Twilio account whose key is not the restaurant's own (or the server-wide one) will now be refused.
+
+## 2026-09-28 — Steps 2 and 3: the adapter, and its proofs
+
+(Same approval: "Push now and plan is approved.")
+
+- Built in the plugin's order: migration (link columns, `sso_nonces`, `member_sessions`, `directory_sync_state`, `app_rights`/`app_roles`); `helpers/os.php`; `/sso` and `/sso/logout`; `requireAuth()` under the flag; local sign-in, registration, Google, invitation, reset and API password login → the launcher; staff/platform-user/restaurant screens read-only and their services refuse; API keys only for linked users in granted restaurants; `scripts/os-directory-sync.php`; `app_roles` on the admin MCP for the kernel's token; `maludb-os.json`, `/api/v1/health`, `db/`, `deploy/`; dev hand-off tool + fixture. `app_config()` also reads `config/.env`.
+- Proofs in `tests/os-adoption/`: 72 checks with the flag on, all pass; with it off every earlier proof, `api-smoke` and `check-install` as at baseline. The kernel's own role validator accepts `app_roles`. Kernel installer `plan`: 21 steps, no stop.
+- Kernel change (its repo): the installer makes `logs/` writable like `storage/`.
+- Owner's steps and what is still owed: `docs/os-adoption.md` §5 (install with `--scheme https`).
