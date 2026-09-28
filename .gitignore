@@ -4,6 +4,8 @@ composer.phar
 
 # Per-server settings and runtime logs
 config/local.php
+config/.env
+config/.env.*
 logs/*
 !logs/.gitkeep
 
