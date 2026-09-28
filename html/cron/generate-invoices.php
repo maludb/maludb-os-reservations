@@ -8,6 +8,12 @@
  * Crontab: 0 2 * * * php /var/www/html/cron/generate-invoices.php >> /var/www/logs/cron-invoices.log 2>&1
  */
 
+// Run by cron with php-cli only, never over the web
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+
 require_once __DIR__ . '/../../helpers/services/billing.php';
 
 $now = date('Y-m-d H:i:s');
