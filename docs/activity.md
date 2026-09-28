@@ -3388,3 +3388,12 @@ page into the database for the url of https://zozocal.com"
 **Prompt:** (answers) roles "Keep its three"; publishing "app_roles on its MCP"; super-admin "Kernel super-admins"; billing "Leave as is".
 
 - Recorded in `docs/os-adoption.md` §2 and `tasks/todo.md` Step 0. Catalog key `reservations`, `/srv/apps/reservations`, database `subello_reservations`, port 8182, business area Sales & Service taken as proposed.
+
+## 2026-09-28 — Step 1: the twelve security fixes
+
+**Prompt:** "Push now and plan is approved."
+
+- Pushed `os-adoption`. Test copy: scratch database `zozocal_adopt` (schema + nav + `docs/sql/os_adoption.sql`), `php -S 127.0.0.1:8190 -t html`, git-ignored `config/local.php`. Baseline before any change: `api-smoke` fails only on the missing Retell key; `check-install` only on `logs/` ownership.
+- S1 invitation code (new `docs/sql/os_adoption.sql`, now the third install file; check-install checks it) · S2 no password or name change on someone with access elsewhere · S3+S6 Retell signatures on every Retell endpoint (Retell's `v=<ms>,d=<hmac>` scheme) with the restaurant's own key, and no restaurant ever uses another's key · S4 Twilio signature (verified against Twilio's documented example) · S5 email webhook secret URL (`EMAIL_WEBHOOK_SECRET`) · S7 diagnostic pages removed · S8 agent import admin-only · S9 demo behind `DEMO_ENABLED` · S10 cron CLI-only · S11 CSRF on the restaurant switch · S12 no secrets or personal data in logs. One commit each (S3 and S6 together: same function).
+- Proven by scripted HTTP checks against the test copy (46 checks, all pass); `api-smoke` and `check-install` as at baseline.
+- New per-server settings: `EMAIL_WEBHOOK_SECRET` (the inbound-mail provider's URL must now carry `?key=`), `DEMO_ENABLED`. Live installs must re-enter nothing else; a Retell or Twilio account whose key is not the restaurant's own (or the server-wide one) will now be refused.

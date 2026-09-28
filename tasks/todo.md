@@ -14,19 +14,19 @@ Branch `os-adoption`. Each step is its own commit. Nothing on a production serve
 - [x] Platform super-admin mapping
 - [x] SaaS billing screens left as they are
 
-## Step 1 — Security fixes (before sign-on; one commit each, all small)
-- [ ] S1 Invitation needs a one-time code: adding a user with no password shows the admin a code once (hashed in `users`); accept-invite requires it
-- [ ] S2 Adding an existing email to a restaurant never changes that person's password
-- [ ] S3 Retell signature check back on, with the restaurant's own key, on every Retell endpoint
-- [ ] S4 Twilio signature check on the SMS webhook (`sms_agents.webhook_auth_token` / the account secret)
-- [ ] S5 Inbound email webhook requires a shared secret
-- [ ] S6 No Retell key from another restaurant: drop the "any restaurant" fallback; callers pass their restaurant
-- [ ] S7 Remove `info.php`, `test-db.php`, `test-email.php`
-- [ ] S8 `downloads/retell-agent-import.php` behind `requireAdmin()` and the current restaurant
-- [ ] S9 Demo pages off unless `DEMO_ENABLED` is set
-- [ ] S10 Cron scripts refuse anything but the CLI
-- [ ] S11 CSRF on the restaurant switch
-- [ ] S12 Stop logging reset tokens, failed-login emails and raw webhook bodies
+## Step 1 — Security fixes (before sign-on; one commit each, all small) — done 2026-09-28, each proven on a scratch copy
+- [x] S1 Invitation needs a one-time code: adding a user with no password shows the admin a code once (hashed in `users`); accept-invite requires it
+- [x] S2 Adding an existing email to a restaurant never changes that person's password
+- [x] S3 Retell signature check back on, with the restaurant's own key, on every Retell endpoint
+- [x] S4 Twilio signature check on the SMS webhook (`sms_agents.webhook_auth_token` / the account secret)
+- [x] S5 Inbound email webhook requires a shared secret
+- [x] S6 No Retell key from another restaurant: drop the "any restaurant" fallback; callers pass their restaurant
+- [x] S7 Remove `info.php`, `test-db.php`, `test-email.php`
+- [x] S8 `downloads/retell-agent-import.php` behind `requireAdmin()` and the current restaurant
+- [x] S9 Demo pages off unless `DEMO_ENABLED` is set
+- [x] S10 Cron scripts refuse anything but the CLI
+- [x] S11 CSRF on the restaurant switch
+- [x] S12 Stop logging reset tokens, failed-login emails and raw webhook bodies
 
 ## Step 2 — The adapter (plugin `os-adopt/references/adapter.md`, in its order)
 - [ ] Migration `docs/sql/os_adoption.sql`: `users.os_member_id`, `restaurants.os_scope_id`, `user_restaurants.source`, `sso_nonces`, `member_sessions`, `directory_sync_state`, the roles catalogue (`app_rights`, `app_roles`)
