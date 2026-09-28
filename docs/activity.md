@@ -3374,3 +3374,11 @@ page into the database for the url of https://zozocal.com"
 - Before the new commit: `docs/claude-log/` session transcripts (contain secrets) are no longer tracked (`.gitignore`), and the smoke test account's password was removed from `tasks/restaurant-only-plan.md`. Tracked files scanned: no known secret values or key patterns remain.
 - Replaced `main` with a single root commit of the current files and force-pushed to GitHub; local reflog and unreachable objects pruned.
 - Old secrets must still be rotated: anyone with an earlier clone, a fork, or GitHub's cached views of old commit IDs may still have them. The ZozoCal-Professional and ZozoCal-Affiliate repositories were split from this history and contain the same secrets.
+
+## 2026-09-28 — Plan: adopt ZozoCal into the MaluDB Business OS
+
+**Prompt:** "Next I want to integrate the application in /home/maludb/ZozoCal-Restaurant repository as an application in the system."
+
+- Branch `os-adoption`. Surveyed the code against the plugin's `os-adopt` survey (sign-in paths, guard, users/restaurants/memberships, API/MCP/webhooks/cron, keys, security gaps) and wrote it with the proposed decisions to `docs/os-adoption.md`.
+- Twelve security gaps to fix first, the worst: invitation acceptance by email alone (account takeover), a restaurant admin overwriting another restaurant's user's password, the Retell signature check commented out, unsigned SMS and email webhooks, one restaurant's Retell key used for all.
+- Archived the portable-install plan to `tasks/portable-install-plan.md`; the new plan is `tasks/todo.md`. Awaiting approval and four owner decisions.
