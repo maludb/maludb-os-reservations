@@ -265,12 +265,6 @@ function getErrorReportingLevel($level) {
                     <a href="?refresh=1" class="btn btn-primary">
                         <i class="bi bi-arrow-clockwise"></i> Refresh All Logs
                     </a>
-                    <a href="../html/test-db.php" class="btn btn-secondary">
-                        <i class="bi bi-database"></i> Test Database
-                    </a>
-                    <a href="../html/info.php" class="btn btn-info">
-                        <i class="bi bi-info-circle"></i> PHP Info
-                    </a>
                 </div>
             </div>
         </div>
