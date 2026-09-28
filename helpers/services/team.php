@@ -52,7 +52,9 @@ function svc_team_guard_last_admin(int $rid, int $userId, string $message): void
 /**
  * Add ($userId = 0) or edit a staff member.
  * Input: first_name, last_name, email, phone, role, password (optional).
- * A new user without a password is marked invited and sets one via Accept Invitation.
+ * A new user without a password is marked invited and sets one via Accept Invitation, with the
+ * one-time code returned here as 'invite_code' (shown to the admin once; editing a pending invitation
+ * issues a new code).
  * An existing account with the same email is linked to the restaurant instead.
  */
 function svc_team_save(int $rid, int $userId, array $in): array
@@ -75,6 +77,7 @@ function svc_team_save(int $rid, int $userId, array $in): array
     }
 
     $pdo = db();
+    $inviteCode = null;
     $pdo->beginTransaction();
     try {
         if ($userId > 0) {
@@ -96,6 +99,11 @@ function svc_team_save(int $rid, int $userId, array $in): array
             }
             $pdo->prepare("UPDATE user_restaurants SET role = ? WHERE user_id = ? AND restaurant_id = ?")
                 ->execute([$role, $userId, $rid]);
+            if ($password === '') {
+                $stmt = $pdo->prepare("SELECT password_hash = '!INVITED' FROM users WHERE id = ?");
+                $stmt->execute([$userId]);
+                if ($stmt->fetchColumn()) $inviteCode = svc_team_issue_invite($pdo, $userId);
+            }
         } else {
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);
@@ -120,6 +128,7 @@ function svc_team_save(int $rid, int $userId, array $in): array
                 );
                 $stmt->execute([$firstName, $lastName, $email, $phone ?: null, $hash]);
                 $userId = (int)$stmt->fetchColumn();
+                if ($password === '') $inviteCode = svc_team_issue_invite($pdo, $userId);
             }
             $pdo->prepare("INSERT INTO user_restaurants (user_id, restaurant_id, role, is_active) VALUES (?, ?, ?, 1)")
                 ->execute([$userId, $rid, $role]);
@@ -129,7 +138,20 @@ function svc_team_save(int $rid, int $userId, array $in): array
         $pdo->rollBack();
         throw $e;
     }
-    return svc_team_get($rid, $userId);
+    $user = svc_team_get($rid, $userId);
+    if ($inviteCode !== null) $user['invite_code'] = $inviteCode;
+    return $user;
+}
+
+/** A new one-time invitation code for $userId, valid 14 days. Only its SHA-256 is stored. */
+function svc_team_issue_invite(PDO $pdo, int $userId): string
+{
+    $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    $code = '';
+    for ($i = 0; $i < 10; $i++) $code .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+    $pdo->prepare("UPDATE users SET invite_code_hash = ?, invite_expires_at = NOW() + INTERVAL '14 days' WHERE id = ?")
+        ->execute([hash('sha256', $code), $userId]);
+    return $code;
 }
 
 /** Activate/deactivate a membership ($active = null toggles). Cannot target yourself. */

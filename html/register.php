@@ -387,6 +387,12 @@ $googleUrlInvite = google_auth_url(json_encode(['flow' => 'invite', 'csrf' => $g
                                     <div class="password-hint" id="invite-email-hint">Enter the email your admin used when adding you</div>
                                 </div>
 
+                                <div class="mb-3" id="invite-code-group">
+                                    <label class="form-label" for="invite-code">Invitation Code</label>
+                                    <input type="text" class="form-control" id="invite-code"
+                                           name="invite_code" placeholder="The code your admin gave you" autocomplete="off" required>
+                                </div>
+
                                 <div class="mb-3" id="invite-password-group">
                                     <label class="form-label" for="invite-password">Create Password</label>
                                     <input type="password" class="form-control" id="invite-password"

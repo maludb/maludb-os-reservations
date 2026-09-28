@@ -30,7 +30,7 @@ $isEdit = $userId > 0;
 require_once '../../../helpers/services/team.php';
 
 try {
-    svc_team_save($restaurantId, $userId, $_POST);
+    $saved = svc_team_save($restaurantId, $userId, $_POST);
 } catch (ServiceError $e) {
     // Keep the per-error alert ids the form used before
     $suffix = $e->field !== '' ? $e->field . '-error' : 'error';
@@ -44,6 +44,16 @@ try {
 
 // Trigger a refresh of the user list (must be before output)
 header('HX-Trigger: refreshUserList');
+
+// A new invitation: show its one-time code and keep the form open so the admin can copy it
+if (!empty($saved['invite_code'])) {
+    echo '<div class="alert alert-info" id="save-user-invite-code">
+            <i class="feather-mail me-1"></i> Invitation created. Give ' . htmlspecialchars($saved['email']) . ' this code, with a link to
+            <strong>/register.php?invite</strong>. It is shown only once and is valid for 14 days:
+            <div class="fs-4 fw-bold font-monospace mt-2" id="save-user-invite-code-value">' . htmlspecialchars($saved['invite_code']) . '</div>
+          </div>';
+    exit;
+}
 
 echo '<div class="alert alert-success alert-dismissible fade show" id="save-user-success">
         <i class="feather-check-circle me-1"></i> Staff member ' . ($isEdit ? 'updated' : 'added') . ' successfully.

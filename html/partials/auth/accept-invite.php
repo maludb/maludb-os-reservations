@@ -22,10 +22,11 @@ if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
 }
 
 $email = trim($_POST['email'] ?? '');
+$inviteCode = strtoupper(preg_replace('/[\s-]+/', '', (string)($_POST['invite_code'] ?? '')));
 $password = $_POST['password'] ?? '';
 $confirmPassword = $_POST['confirm_password'] ?? '';
 
-if ($email === '' || $password === '' || $confirmPassword === '') {
+if ($email === '' || $inviteCode === '' || $password === '' || $confirmPassword === '') {
     echo '<div class="alert alert-danger" id="invite-error-required">All fields are required.</div>';
     exit;
 }
@@ -63,8 +64,17 @@ if ($user['password_hash'] !== '!INVITED') {
     exit;
 }
 
-// Set the password
-$stmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
+// The one-time code the admin was shown, unexpired
+$codeOk = !empty($user['invite_code_hash'])
+    && hash_equals($user['invite_code_hash'], hash('sha256', $inviteCode))
+    && $user['invite_expires_at'] !== null && strtotime($user['invite_expires_at']) > time();
+if (!$codeOk) {
+    echo '<div class="alert alert-danger" id="invite-error-code">That invitation code is not valid or has expired. Ask your restaurant admin for a new one.</div>';
+    exit;
+}
+
+// Set the password; the code is used up
+$stmt = $pdo->prepare("UPDATE users SET password_hash = ?, invite_code_hash = NULL, invite_expires_at = NULL WHERE id = ?");
 $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $user['id']]);
 
 // Log in

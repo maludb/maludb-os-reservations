@@ -22,7 +22,7 @@ The last step, `php scripts/check-install.php`, is the definition of done.
   anything in the Google, Retell, Twilio or MailerSend consoles. Prepare exact values for
   them, hand them over, and wait.
 - `config/local.php` is git-ignored. Never add it to git.
-- Only load `docs/sql/pg_schema.sql` and `docs/sql/nav_permissions.sql`. The other files in
+- Only load `docs/sql/pg_schema.sql`, `docs/sql/nav_permissions.sql` and `docs/sql/os_adoption.sql`. The other files in
   `docs/sql/` are old MySQL-era migrations and will fail on PostgreSQL.
 
 ## 0. Collect these first
@@ -83,6 +83,7 @@ sudo -u postgres psql -v ON_ERROR_STOP=1 \
 export PGPASSWORD="$DB_PASS"
 psql -h 127.0.0.1 -U zozocal -d zozocal -v ON_ERROR_STOP=1 -f docs/sql/pg_schema.sql
 psql -h 127.0.0.1 -U zozocal -d zozocal -v ON_ERROR_STOP=1 -f docs/sql/nav_permissions.sql
+psql -h 127.0.0.1 -U zozocal -d zozocal -v ON_ERROR_STOP=1 -f docs/sql/os_adoption.sql
 ```
 
 **Move:** see "Moving an existing install" below instead of loading the schema.
@@ -191,6 +192,7 @@ Do steps 1–2 and create the role and database from step 3 on the new server, t
    Warnings about missing roles are fine. Errors about tables are not.
 4. **Bring the old schema up to date if needed.** Compare with `docs/sql/pg_schema.sql`.
    `check-install.php` reports an old `api_tokens` table; add any missing columns with `ALTER TABLE`.
+   Then load `docs/sql/os_adoption.sql` (safe to run again).
 5. **Copy the old per-server values** into the new `config/local.php`: Google keys and the
    Retell fallback. The database settings are the new server's. Set `APP_URL` to the new domain.
 6. **Skip step 8.** The users come with the database. Do steps 4–7 and 9–10.

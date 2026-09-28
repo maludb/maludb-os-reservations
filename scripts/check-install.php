@@ -74,6 +74,10 @@ if ($pdo) {
     $hasKeyCols === 3
         ? report('PASS', 'Schema is current (api_tokens has key columns)')
         : report('FAIL', 'Schema is out of date (api_tokens key columns missing)', 'Compare against docs/sql/pg_schema.sql');
+    $hasInvite = (int)$pdo->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'invite_code_hash'")->fetchColumn();
+    $hasInvite === 1
+        ? report('PASS', 'Adoption changes loaded (docs/sql/os_adoption.sql)')
+        : report('FAIL', 'docs/sql/os_adoption.sql not loaded', 'psql -f docs/sql/os_adoption.sql');
     try {
         $nav = (int)$pdo->query("SELECT COUNT(*) FROM nav_permissions")->fetchColumn();
         $nav > 0

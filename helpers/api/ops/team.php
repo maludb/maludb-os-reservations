@@ -27,7 +27,7 @@ api_op('users_get', [
 ]);
 
 api_op('users_create', [
-    'description' => 'Add a staff member. An existing account with the same email is linked to this restaurant instead of creating a new one.',
+    'description' => 'Add a staff member. An existing account with the same email is linked to this restaurant instead of creating a new one. With no password the person is invited: the answer carries invite_code, a one-time code (14 days) they enter on /register.php?invite.',
     'role' => 'admin', 'method' => 'POST', 'path' => 'users',
     'input' => $teamUserFields,
     'required' => ['first_name', 'last_name', 'email', 'role'],

@@ -53,7 +53,7 @@ Claude Code picks it up automatically in this repo; ask it to "install ZozoCal o
 follow it by hand. It covers a fresh install and moving an existing install with its data.
 
 In short: Apache + PHP 8.3 (`pdo_pgsql`, `curl`, `mbstring`, `xml`), Composer, PostgreSQL 17 loaded from
-`docs/sql/pg_schema.sql` then `docs/sql/nav_permissions.sql`, per-server settings in `config/local.php`
+`docs/sql/pg_schema.sql`, `docs/sql/nav_permissions.sql`, then `docs/sql/os_adoption.sql`, per-server settings in `config/local.php`
 (copy `config/local.example.php`; git-ignored), `docs/deploy/apache-vhost.conf`, `docs/deploy/crontab`,
 `php scripts/create-super-admin.php` for the first admin, and `php scripts/check-install.php` to verify.
 
