@@ -284,7 +284,7 @@ function processInboundSMS(
                 $tcArgs = $toolCall['function']['arguments'] ?? '{}';
                 $args   = json_decode($tcArgs, true) ?: [];
 
-                smsLog("TOOL CALL: {$tcName} args=" . $tcArgs);
+                smsLog("TOOL CALL: {$tcName}");
 
                 // Save assistant tool-call message
                 $stmt = $pdo->prepare(
@@ -302,7 +302,7 @@ function processInboundSMS(
                     }
                 }
 
-                smsLog("TOOL RESULT: " . mb_substr($toolContent, 0, 500));
+                smsLog("TOOL RESULT: " . strlen($toolContent) . " bytes");
 
                 // Save tool result message
                 $stmt = $pdo->prepare(
@@ -336,7 +336,7 @@ function processInboundSMS(
         );
         $stmt->execute([$conversationId, $finalResponse, $tokensUsed]);
 
-        smsLog("FINAL RESPONSE: " . mb_substr($finalResponse, 0, 200));
+        smsLog("FINAL RESPONSE: " . strlen($finalResponse) . " characters");
         break;
     }
 

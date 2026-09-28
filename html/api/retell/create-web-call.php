@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // Get request body
 $rawBody = file_get_contents('php://input');
-wclog("RAW BODY: " . ($rawBody !== false && $rawBody !== '' ? $rawBody : '(empty)'));
+wclog("BODY: " . strlen((string)$rawBody) . " bytes");
 $input = json_decode($rawBody, true);
 if (!is_array($input)) {
     $input = [];
@@ -193,7 +193,6 @@ $curlError = curl_error($ch);
 curl_close($ch);
 
 wclog("RETELL RESPONSE — HTTP {$httpCode}");
-wclog("RETELL RESPONSE BODY: " . ($response ?: '(empty)'));
 if ($curlError) {
     wclog("CURL ERROR: " . $curlError);
 }

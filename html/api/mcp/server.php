@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $boundSlug = verifyMcpAuth();
 
 $rawBody = file_get_contents('php://input');
-mcpLog("RAW BODY: " . ($rawBody ?: '(empty)'));
+mcpLog("BODY: " . strlen((string)$rawBody) . " bytes");
 
 $request = json_decode($rawBody, true);
 

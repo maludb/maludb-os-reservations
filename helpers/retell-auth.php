@@ -122,7 +122,7 @@ function parseRetellRequest(): array
 
     // Read raw body
     $rawBody = file_get_contents('php://input');
-    file_put_contents($logFile, "[{$ts}] RAW BODY: " . ($rawBody ?: '(empty)') . "\n", FILE_APPEND);
+    file_put_contents($logFile, "[{$ts}] BODY: " . strlen((string)$rawBody) . " bytes\n", FILE_APPEND);
 
     if ($rawBody === false || $rawBody === '') {
         file_put_contents($logFile, "[{$ts}] ERROR: Empty body\n\n", FILE_APPEND);
@@ -161,7 +161,7 @@ function retellResponse(array $data): void
 {
     $logFile = __DIR__ . '/../logs/retell-custom-functions.log';
     $ts = date('Y-m-d H:i:s');
-    file_put_contents($logFile, "[{$ts}] RESPONSE: " . json_encode($data, JSON_PRETTY_PRINT) . "\n\n", FILE_APPEND);
+    file_put_contents($logFile, "[{$ts}] RESPONSE: success=" . json_encode($data['success'] ?? null) . "\n\n", FILE_APPEND);
 
     header('Content-Type: application/json');
     echo json_encode($data);

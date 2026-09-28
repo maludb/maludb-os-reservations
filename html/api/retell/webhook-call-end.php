@@ -24,7 +24,7 @@ elog("=== WEBHOOK CALL END ===");
 
 // Read raw body
 $rawBody = file_get_contents('php://input');
-elog("RAW BODY: " . ($rawBody !== false && $rawBody !== '' ? $rawBody : '(empty)'));
+elog("BODY: " . strlen((string)$rawBody) . " bytes");
 
 if ($rawBody === false || $rawBody === '') {
     http_response_code(400);
@@ -62,8 +62,8 @@ if ($toNumber === '') {
     $toNumber = '+18473930142';
 }
 
-elog("PARSED — call_id: {$callId}, from: {$fromNumber}, to: {$toNumber}, duration_ms: {$durationMs}, status: {$status}");
-elog("recording_url: " . ($recordingUrl ?: '(none)'));
+elog("PARSED — call_id: {$callId}, to: {$toNumber}, duration_ms: {$durationMs}, status: {$status}");
+elog("recording: " . ($recordingUrl ? 'yes' : 'none'));
 elog("transcript length: " . strlen($transcript));
 
 // --- Look up restaurant ---

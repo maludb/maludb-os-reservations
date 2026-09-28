@@ -44,12 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userModel = new User();
     $token = $userModel->createPasswordResetToken($email);
 
-    if ($token) {
-        // In a real application, you would send an email here
-        // For now, we'll log it and show a success message
-        error_log("Password reset token for $email: $token");
-        error_log("Reset URL: http://{$_SERVER['HTTP_HOST']}/reset-password.php?token=$token");
-    }
+    // No reset mail is sent yet; the token is never written to a log (anyone reading it could reset the account)
 
     // Always show success message (don't reveal if email exists)
     echo '<div class="alert alert-success" id="forgot-password-success">

@@ -284,7 +284,7 @@ function processInboundEmail(
                 $tcArgs = $toolCall['function']['arguments'] ?? '{}';
                 $args   = json_decode($tcArgs, true) ?: [];
 
-                emailAgentLog("TOOL CALL: {$tcName} args=" . $tcArgs);
+                emailAgentLog("TOOL CALL: {$tcName}");
 
                 // Save assistant tool-call message
                 $stmt = $pdo->prepare(
@@ -302,7 +302,7 @@ function processInboundEmail(
                     }
                 }
 
-                emailAgentLog("TOOL RESULT: " . mb_substr($toolContent, 0, 500));
+                emailAgentLog("TOOL RESULT: " . strlen($toolContent) . " bytes");
 
                 // Save tool result message
                 $stmt = $pdo->prepare(
@@ -335,7 +335,7 @@ function processInboundEmail(
         );
         $stmt->execute([$conversationId, $finalResponse, $tokensUsed]);
 
-        emailAgentLog("FINAL RESPONSE: " . mb_substr($finalResponse, 0, 200));
+        emailAgentLog("FINAL RESPONSE: " . strlen($finalResponse) . " characters");
         break;
     }
 

@@ -53,8 +53,7 @@ if (preg_match('/<([^>]+)>/', $toEmail, $m)) {
 $fromEmail = strtolower(trim($fromEmail));
 $toEmail   = strtolower(trim($toEmail));
 
-emailWebhookLog("FROM: {$fromEmail} | TO: {$toEmail} | SUBJECT: {$subject}");
-emailWebhookLog("BODY: " . mb_substr($body, 0, 500));
+emailWebhookLog("TO: {$toEmail} | " . strlen($body) . " characters");
 
 if ($fromEmail === '' || $toEmail === '' || $body === '') {
     emailWebhookLog("ERROR: Missing required fields");
@@ -99,7 +98,7 @@ if ($response === '') {
 
 // --- Send reply email ---
 // Uses the existing MailerSend integration from notifications helper
-emailWebhookLog("SENDING REPLY: " . mb_substr($response, 0, 200));
+emailWebhookLog("SENDING REPLY: " . strlen($response) . " characters");
 
 require_once __DIR__ . '/../../../helpers/notifications.php';
 

@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch();
 
     if (!$user || !password_verify($password, $user['password_hash'])) {
-        error_log("Failed login attempt for email: $email");
+        error_log("Failed login attempt from " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
         echo '<div class="alert alert-danger" id="login-error-credentials">
                 Invalid email or password. Please try again.
               </div>';

@@ -46,7 +46,7 @@ $fromNumber = $call['from_number'] ?? '';
 $toNumber   = $call['to_number'] ?? '';
 $callId     = $call['call_id'] ?? '';
 
-wlog("PARSED — call_id: {$callId}, from_number: {$fromNumber}, to_number: {$toNumber}");
+wlog("PARSED — call_id: {$callId}, to_number: {$toNumber}");
 
 if ($toNumber === '') {
     $toNumber = '+18473930142';
@@ -147,7 +147,6 @@ if ($event === 'call_inbound') {
         $fromDigits = normalizePhone($fromNumber);
         $from10 = strlen($fromDigits) > 10 ? substr($fromDigits, -10) : $fromDigits;
         $fromE164 = '+1' . $from10;
-        wlog("GUEST LOOKUP — from_number normalized to E.164: {$fromE164}");
 
         $stmt = $pdo->prepare(
             "SELECT * FROM guests
@@ -279,7 +278,7 @@ if ($event === 'call_inbound') {
         ],
     ];
 
-    wlog("DYNAMIC VARIABLES: " . json_encode($vars, JSON_PRETTY_PRINT));
+    wlog("DYNAMIC VARIABLES: " . implode(', ', array_keys($vars)));
     wlog("=== END ===\n");
 
     echo json_encode($response);
@@ -302,7 +301,7 @@ if ($event === 'call_ended') {
     $startTimestamp      = $call['start_timestamp'] ?? null;
     $endTimestamp        = $call['end_timestamp'] ?? null;
 
-    wlog("duration_ms: {$durationMs}, status: {$status}, recording: " . ($recordingUrl ?: '(none)'));
+    wlog("duration_ms: {$durationMs}, status: {$status}, recording: " . ($recordingUrl ? 'yes' : 'none'));
 
     $pdo = db();
 

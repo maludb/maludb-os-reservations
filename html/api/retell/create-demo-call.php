@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $rawBody = file_get_contents('php://input');
-dclog("RAW BODY: " . ($rawBody ?: '(empty)'));
+dclog("BODY: " . strlen((string)$rawBody) . " bytes");
 $input = json_decode($rawBody, true);
 $agentId = $input['agent_id'] ?? '';
 
@@ -121,7 +121,6 @@ $curlError = curl_error($ch);
 curl_close($ch);
 
 dclog("RETELL RESPONSE — HTTP {$httpCode}");
-dclog("RETELL RESPONSE BODY: " . ($response ?: '(empty)'));
 if ($curlError) dclog("CURL ERROR: " . $curlError);
 dclog("=== END ===\n");
 

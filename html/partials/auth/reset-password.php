@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Log password reset
-    error_log("Password reset successful for token: $token");
+    error_log("Password reset successful");
 
     // Success - redirect to login with a success message
     $_SESSION['success_message'] = 'Password reset successfully! Please log in with your new password.';
