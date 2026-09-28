@@ -26,6 +26,10 @@ return [
     'GOOGLE_CLIENT_ID'     => '',
     'GOOGLE_CLIENT_SECRET' => '',
 
+    // Inbound email webhook: give the mail provider <APP_URL>/api/email/webhook.php?key=<this>
+    // (a long random string, e.g. openssl rand -hex 24). Empty = the webhook accepts nothing.
+    'EMAIL_WEBHOOK_SECRET' => '',
+
     // Retell account-wide fallback key, used when a restaurant has not saved its own (optional)
     'RETELL_DEFAULT_API_KEY' => '',
 

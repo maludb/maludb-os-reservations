@@ -6,7 +6,8 @@
  * processes through OpenAI GPT-4.1 with tool calling (using MCP tools),
  * and sends the response back via the configured email provider.
  *
- * Webhook URL: https://yourdomain.com/api/email/webhook.php
+ * Webhook URL: <APP_URL>/api/email/webhook.php?key=<EMAIL_WEBHOOK_SECRET> — the provider's inbound parse
+ * does not sign its posts, so the URL carries a secret from config/local.php. With none set, nothing is accepted.
  * HTTP Method: POST
  */
 
@@ -21,6 +22,15 @@ function emailWebhookLog(string $message): void
 {
     $ts = date('Y-m-d H:i:s');
     file_put_contents(EMAIL_WEBHOOK_LOG, "[{$ts}] {$message}\n", FILE_APPEND);
+}
+
+// --- Only the provider, which holds the secret URL ---
+require_once __DIR__ . '/../../../config/app.php';
+$secret = (string)app_config('EMAIL_WEBHOOK_SECRET', '');
+if ($secret === '' || !hash_equals($secret, (string)($_GET['key'] ?? ''))) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
+    exit;
 }
 
 // --- Main ---
