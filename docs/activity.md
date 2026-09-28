@@ -3406,3 +3406,11 @@ page into the database for the url of https://zozocal.com"
 - Proofs in `tests/os-adoption/`: 72 checks with the flag on, all pass; with it off every earlier proof, `api-smoke` and `check-install` as at baseline. The kernel's own role validator accepts `app_roles`. Kernel installer `plan`: 21 steps, no stop.
 - Kernel change (its repo): the installer makes `logs/` writable like `storage/`.
 - Owner's steps and what is still owed: `docs/os-adoption.md` §5 (install with `--scheme https`).
+
+## 2026-09-28 — Installed beside the kernel (application 51)
+
+**Prompt:** the owner's `sudo php bin/app_install.php apply /home/maludb/ZozoCal-Restaurant --scheme https.` output — every step ran, then the kernel's installer crashed at the admin grant ("This application serves several sites — pick the one this grant is for").
+
+- Kernel installer fixed (its repo): no admin grant for a scoped application (a super-admin holds the admin role in every site already); an unknown `--scheme` stops the run (`https.` had silently become http); `logs/` handed to www-data by ownership, not by root's `is_writable`. Re-plan: 0 steps.
+- Installed copy: `APP_URL` and `OS_LAUNCHER_URL` set to https in `/srv/apps/reservations/config/.env` (group www-data kept); `logs/` given to www-data. Checked: health 200, `/app.php` and `/login.php` → the https launcher, `/sso` without a token 403, unsigned Retell call 401 and logged, the three timers running, the directory sync reaching the kernel; the kernel holds application 51 (active, location-scoped, 4 endpoints, roles admin/manager/user).
+- Owner's next: the proxy entry and certificate for `reservations.subello.com`; sites on the Scopes tab; grants per site.
