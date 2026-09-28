@@ -18,7 +18,7 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../../../helpers/services/ai_agents.php';
 
 try {
-    echo json_encode(svc_retell_unassigned_phones());
+    echo json_encode(svc_retell_unassigned_phones(currentRestaurantId()));
 } catch (ServiceError $e) {
     echo json_encode(['error' => $e->getMessage()]);
 }

@@ -39,6 +39,8 @@ if (!is_array($data)) {
     exit;
 }
 
+requireRetellSignature($rawBody, $data);
+
 $call = $data['call'] ?? $data;
 
 // --- Extract fields ---

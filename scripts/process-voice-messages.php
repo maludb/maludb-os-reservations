@@ -43,13 +43,6 @@ if (isset($opts['help'])) {
 $limit  = isset($opts['limit']) ? (int)$opts['limit'] : 10;
 $dryRun = isset($opts['dry-run']);
 
-// --- Get Retell API key ---
-$apiKey = getRetellApiKey();
-if (empty($apiKey) && !$dryRun) {
-    vmlog("ERROR: No Retell API key configured. Exiting.");
-    echo "No Retell API key configured.\n";
-    exit(1);
-}
 
 // --- Connect to database ---
 $pdo = Database::getInstance()->getConnection();
@@ -88,6 +81,16 @@ foreach ($messages as $vm) {
 
     if ($dryRun) {
         vmlog("  [SKIP - dry run] message: " . mb_substr($vm['message_text'], 0, 100) . '...');
+        continue;
+    }
+
+    // Each restaurant calls on its own Retell key
+    $apiKey = getRetellApiKey((int)$vm['restaurant_id']);
+    if ($apiKey === '') {
+        vmlog("  [SKIP] No Retell API key for restaurant {$vm['restaurant_id']}");
+        $pdo->prepare("UPDATE voice_messages SET retry_count = retry_count + 1, error_message = ? WHERE id = ?")
+            ->execute(['No Retell API key configured', $vmId]);
+        $failed++;
         continue;
     }
 

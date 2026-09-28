@@ -4,7 +4,7 @@
  *
  * Creates a web call for the demo/call pages.
  * Auto-populates restaurant info as dynamic variables.
- * Uses the Retell API key from the first restaurant's settings.
+ * Uses the server-wide Retell key (RETELL_DEFAULT_API_KEY).
  */
 
 require_once __DIR__ . '/../../../helpers/db.php';

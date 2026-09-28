@@ -2,40 +2,94 @@
 /**
  * Retell AI Request Authentication
  *
- * Verifies X-Retell-Signature header using HMAC SHA-256.
- * API key stored in settings table as 'retell_api_key'.
+ * Verifies the X-Retell-Signature header (HMAC SHA-256 keyed with the Retell API key that owns the agent).
+ * Each restaurant's key is its own ('retell_api_key' in settings); a restaurant without one uses the
+ * server-wide RETELL_DEFAULT_API_KEY — never another restaurant's.
  */
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/availability.php'; // getRestaurantSetting
+require_once __DIR__ . '/../config/app.php';
 
 /**
  * Verify the Retell signature on an incoming request.
- * Retell signs the raw request body with HMAC SHA-256 using the API key.
- *
- * @param string $rawBody Raw request body
- * @param string $signature Value of X-Retell-Signature header
- * @param string $apiKey The Retell API key
- * @return bool
+ * Retell sends "v=<unix ms>,d=<hex>" where d = HMAC-SHA256(raw body . timestamp) keyed with the API key,
+ * and the timestamp must be within five minutes (the scheme of Retell's own SDKs).
  */
 function verifyRetellSignature(string $rawBody, string $signature, string $apiKey): bool
 {
-    if ($signature === '' || $apiKey === '') {
+    if ($apiKey === '' || !preg_match('/^v=(\d+),d=([0-9a-f]+)$/', $signature, $m)) {
         return false;
     }
-    $expected = hash_hmac('sha256', $rawBody, $apiKey);
-    return hash_equals($expected, $signature);
+    if (abs((int)(microtime(true) * 1000) - (int)$m[1]) > 5 * 60 * 1000) {
+        return false;
+    }
+    return hash_equals(hash_hmac('sha256', $rawBody . $m[1], $apiKey), $m[2]);
 }
 
 /**
- * Get the Retell API key.
- * Priority: restaurant-specific override → global setting → hardcoded default.
- *
- * @param int|null $restaurantId Check for a restaurant-specific key first
+ * The restaurant a Retell request is about: the restaurant_slug argument of a custom function, else the
+ * agent (call.agent_id, or ?id= on the webhook URL) through restaurant_prompts.
  */
+function retellRequestRestaurantId(array $data): ?int
+{
+    $slug = (string)($data['args']['restaurant_slug'] ?? '');
+    if ($slug !== '') {
+        $stmt = db()->prepare("SELECT id FROM restaurants WHERE slug = ?");
+        $stmt->execute([$slug]);
+        $id = $stmt->fetchColumn();
+        if ($id) return (int)$id;
+    }
+    $call = $data['call'] ?? $data['call_inbound'] ?? $data;
+    $agentId = (string)($call['agent_id'] ?? $_GET['id'] ?? '');
+    if ($agentId !== '') {
+        $stmt = db()->prepare("SELECT restaurant_id FROM restaurant_prompts WHERE agent_id = ? LIMIT 1");
+        $stmt->execute([$agentId]);
+        $id = $stmt->fetchColumn();
+        if ($id) return (int)$id;
+    }
+    return null;
+}
+
+/**
+ * Stop with 401 unless the request carries a valid Retell signature, made with the key of the restaurant
+ * it is about (or the server-wide key). Every endpoint Retell calls goes through here.
+ */
+function requireRetellSignature(string $rawBody, array $data): void
+{
+    $signature = $_SERVER['HTTP_X_RETELL_SIGNATURE'] ?? '';
+    $keys = array_unique(array_filter([
+        getRetellApiKey(retellRequestRestaurantId($data)),
+        (string)app_config('RETELL_DEFAULT_API_KEY', ''),
+    ]));
+    foreach ($keys as $key) {
+        if (verifyRetellSignature($rawBody, $signature, $key)) return;
+    }
+    http_response_code(401);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Invalid signature']);
+    exit;
+}
+
+/**
+ * Get the Retell API key: the restaurant's own key, else the server-wide RETELL_DEFAULT_API_KEY.
+ * With no restaurant given, the one chosen by retellUseRestaurant() (the Retell API helpers), else
+ * only the server-wide key. Another restaurant's key is never used.
+ *
+ * @param int|null $restaurantId The restaurant the call is for
+ */
+/** Choose (with an id) or read (without) the restaurant whose key the Retell API helpers use. */
+function retellUseRestaurant(?int $restaurantId = null): ?int
+{
+    static $current = null;
+    if ($restaurantId !== null) $current = $restaurantId;
+    return $current;
+}
+
 function getRetellApiKey(?int $restaurantId = null): string
 {
     $pdo = db();
+    $restaurantId ??= retellUseRestaurant();
 
     // 1. Check for restaurant-specific override
     if ($restaurantId !== null && $restaurantId > 0) {
@@ -49,17 +103,7 @@ function getRetellApiKey(?int $restaurantId = null): string
         }
     }
 
-    // 2. Check for a global key in settings
-    $stmt = $pdo->prepare(
-        "SELECT setting_value FROM settings WHERE setting_key = 'retell_api_key' AND setting_value != '' ORDER BY restaurant_id ASC LIMIT 1"
-    );
-    $stmt->execute();
-    $row = $stmt->fetch();
-    if ($row) {
-        return $row['setting_value'];
-    }
-
-    // 3. Server-wide default (config/local.php or environment)
+    // 2. Server-wide default (config/local.php or environment)
     require_once __DIR__ . '/../config/app.php';
     return (string)app_config('RETELL_DEFAULT_API_KEY', '');
 }
@@ -87,19 +131,6 @@ function parseRetellRequest(): array
         exit;
     }
 
-    // Verify signature
-    $signature = $_SERVER['HTTP_X_RETELL_SIGNATURE'] ?? '';
-    $apiKey = getRetellApiKey();
-
-    // Auth temporarily disabled for debugging
-    // if ($apiKey !== '' && $signature !== '') {
-    //     if (!verifyRetellSignature($rawBody, $signature, $apiKey)) {
-    //         http_response_code(401);
-    //         echo json_encode(['error' => 'Invalid signature']);
-    //         exit;
-    //     }
-    // }
-
     // Parse JSON
     $data = json_decode($rawBody, true);
     if (!is_array($data)) {
@@ -107,6 +138,8 @@ function parseRetellRequest(): array
         echo json_encode(['error' => 'Invalid JSON']);
         exit;
     }
+
+    requireRetellSignature($rawBody, $data);
 
     return $data;
 }

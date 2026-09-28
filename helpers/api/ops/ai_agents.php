@@ -105,7 +105,7 @@ api_op('voice_agents_assign_phone', [
 api_op('retell_unassigned_phones', [
     'description' => 'Phone numbers in the Retell account that no agent answers yet.',
     'role' => 'admin', 'method' => 'GET', 'path' => 'retell/unassigned-phones',
-    'handler' => fn($in, $ctx) => ['phone_numbers' => svc_retell_unassigned_phones()],
+    'handler' => fn($in, $ctx) => ['phone_numbers' => svc_retell_unassigned_phones($ctx['restaurant_id'])],
 ]);
 
 api_op('retell_prompt_templates', [

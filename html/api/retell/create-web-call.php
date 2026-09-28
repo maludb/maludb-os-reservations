@@ -71,7 +71,7 @@ if (!preg_match('/^agent_[a-zA-Z0-9]+$/', $agentId)) {
 }
 
 // Get API key from settings
-$apiKey = getRetellApiKey();
+$apiKey = getRetellApiKey($restaurantId);
 if (empty($apiKey)) {
     http_response_code(400);
     echo json_encode(['error' => 'No Retell API key configured. Set it in Settings > Integrations.']);

@@ -33,6 +33,8 @@ if (!is_array($data)) {
     $data = [];
 }
 
+requireRetellSignature((string)$rawBody, $data);
+
 // Determine the event type
 $event = $data['event'] ?? 'call_inbound';
 wlog("=== WEBHOOK EVENT: {$event} ===");

@@ -147,6 +147,7 @@ function svc_voice_agent_delete(int $rid, int $id): void
  */
 function svc_voice_agent_sync(int $rid, int $id): array
 {
+    retellUseRestaurant($rid);
     $prompt = svc_row('restaurant_prompts', $id, $rid, 'Voice agent');
     if (empty($prompt['agent_prompt'])) svc_fail('Cannot sync — agent prompt is empty. Edit the agent first.', 'agent_prompt');
 
@@ -212,6 +213,7 @@ function svc_voice_agent_sync(int $rid, int $id): array
  */
 function svc_voice_agent_create(int $rid, string $agentName): array
 {
+    retellUseRestaurant($rid);
     $agentName = trim($agentName);
     if ($agentName === '') svc_fail('Agent name is required.', 'agent_name');
     $pdo = db();
@@ -337,6 +339,7 @@ function svc_voice_agent_create(int $rid, string $agentName): array
  */
 function svc_voice_agent_fetch(int $rid, int $id): array
 {
+    retellUseRestaurant($rid);
     $prompt = svc_row('restaurant_prompts', $id, $rid, 'Voice agent');
     $agentId = $prompt['agent_id'] ?? '';
     $llmId = $prompt['retell_llm_id'] ?? '';
@@ -405,6 +408,7 @@ function svc_voice_agent_fetch(int $rid, int $id): array
 /** Update the prompt (and optional begin message) on the Retell LLM, then locally. */
 function svc_voice_agent_update_prompt(int $rid, int $id, string $agentPrompt, string $beginMessage = ''): array
 {
+    retellUseRestaurant($rid);
     $agentPrompt = trim($agentPrompt);
     $beginMessage = trim($beginMessage);
     if ($agentPrompt === '') svc_fail('Agent prompt cannot be empty.', 'agent_prompt');
@@ -425,6 +429,7 @@ function svc_voice_agent_update_prompt(int $rid, int $id, string $agentPrompt, s
 /** Route inbound calls on a Retell phone number to this agent. */
 function svc_voice_agent_assign_phone(int $rid, int $id, string $phoneNumber): array
 {
+    retellUseRestaurant($rid);
     $phoneNumber = trim($phoneNumber);
     if ($phoneNumber === '') svc_fail('Missing prompt ID or phone number.', 'phone_number');
     $prompt = svc_row('restaurant_prompts', $id, $rid, 'Voice agent');
@@ -444,8 +449,9 @@ function svc_voice_agent_assign_phone(int $rid, int $id, string $phoneNumber): a
 }
 
 /** Retell phone numbers with no inbound or outbound agent. */
-function svc_retell_unassigned_phones(): array
+function svc_retell_unassigned_phones(int $rid): array
 {
+    retellUseRestaurant($rid);
     $result = retellListPhoneNumbers();
     if (!$result['success']) svc_ai_retell_fail($result['error'] ?? 'Failed to fetch phone numbers');
     $unassigned = [];
