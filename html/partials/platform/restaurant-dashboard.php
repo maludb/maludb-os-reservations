@@ -100,6 +100,7 @@ foreach ($subscriptions as $s) {
                 </span>
             </div>
             <div id="platform-restaurant-dashboard-actions">
+                <?php if (!os_enabled()): ?>
                 <button class="btn btn-outline-<?php echo $restaurant['is_active'] ? 'warning' : 'success'; ?> me-2"
                         hx-post="/partials/platform/toggle-restaurant.php"
                         hx-vals='{"restaurant_id": <?php echo (int)$restaurant['id']; ?>, "source": "dashboard", "csrf_token": "<?php echo generate_csrf_token(); ?>"}'
@@ -115,6 +116,7 @@ foreach ($subscriptions as $s) {
                         id="platform-restaurant-dashboard-edit-btn">
                     <i class="feather-edit-2 me-1"></i> Edit
                 </button>
+                <?php endif; ?>
             </div>
         </div>
     </div>

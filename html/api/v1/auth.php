@@ -10,6 +10,10 @@ api_require_method('POST');
 $action = api_query('action', '');
 
 if ($action === 'login') {
+    require_once __DIR__ . '/../../../helpers/os.php';
+    if (os_enabled()) {
+        api_error('Password sign-in is closed: people sign in through the operating system. Use an API key (Settings → API Keys).', 'FORBIDDEN', 403);
+    }
     api_rate_limit('auth', 10);
     handleLogin();
 } elseif ($action === 'logout') {

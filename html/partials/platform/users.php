@@ -24,14 +24,17 @@ $users = $stmt->fetchAll();
             <h4 class="fw-bold mb-0" id="platform-users-title">
                 <i class="feather-user me-2"></i>All Users
             </h4>
+            <?php if (!os_enabled()): ?>
             <button class="btn btn-primary"
                     hx-get="/partials/platform/platform-user-form.php"
                     hx-target="#modal-container"
                     id="platform-add-user-btn">
                 <i class="feather-plus me-1"></i> Add User
             </button>
+            <?php endif; ?>
         </div>
     </div>
+    <?php if (os_enabled()) echo os_managed_notice('platform-users-os-managed'); ?>
 
     <!-- Summary cards -->
     <div class="row g-3 mb-4" id="platform-users-stats">
@@ -135,6 +138,7 @@ $users = $stmt->fetchAll();
                                         <?php echo $u['last_login_at'] ? date('M j, Y g:ia', strtotime($u['last_login_at'])) : '<span class="text-muted">Never</span>'; ?>
                                     </td>
                                     <td class="text-end">
+                                        <?php if (!os_enabled()): ?>
                                         <button class="btn btn-sm btn-outline-primary me-1"
                                                 hx-get="/partials/platform/platform-user-form.php?id=<?php echo (int)$u['id']; ?>"
                                                 hx-target="#modal-container"
@@ -151,6 +155,7 @@ $users = $stmt->fetchAll();
                                                 id="platform-toggle-user-btn-<?php echo (int)$u['id']; ?>">
                                             <i class="feather-<?php echo $u['is_active'] ? 'user-x' : 'user-check'; ?>"></i>
                                         </button>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>

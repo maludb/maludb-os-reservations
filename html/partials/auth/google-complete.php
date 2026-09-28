@@ -1,4 +1,7 @@
 <?php
+// Closed while the Business OS signs people in (OS_ENABLED): the visitor goes to its launcher.
+require_once __DIR__ . '/../../../helpers/os.php';
+os_close_local_signin();
 /**
  * Complete Google Registration — saves company name and creates account
  */

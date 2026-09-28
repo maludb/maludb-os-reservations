@@ -20,14 +20,17 @@ $restaurants = $stmt->fetchAll();
             <h4 class="fw-bold mb-0" id="platform-restaurants-title">
                 <i class="feather-briefcase me-2"></i>Manage Locations
             </h4>
+            <?php if (!os_enabled()): ?>
             <button class="btn btn-primary"
                     hx-get="/partials/platform/restaurant-form.php"
                     hx-target="#modal-container"
                     id="platform-add-restaurant-btn">
                 <i class="feather-plus me-1"></i> Add Restaurant
             </button>
+            <?php endif; ?>
         </div>
     </div>
+    <?php if (os_enabled()) echo os_managed_notice('platform-restaurants-os-managed'); ?>
 
     <div class="row" id="platform-restaurants-content">
         <div class="col-12">

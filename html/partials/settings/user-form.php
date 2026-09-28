@@ -4,6 +4,7 @@ require_once '../../../helpers/csrf.php';
 
 requireAuth();
 requireAdmin();
+if (os_enabled()) { echo os_managed_notice('user-form-os-managed'); exit; }
 
 $restaurantId = currentRestaurantId();
 $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;

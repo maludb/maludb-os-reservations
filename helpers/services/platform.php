@@ -7,6 +7,7 @@
  */
 
 require_once __DIR__ . '/_base.php';
+require_once __DIR__ . '/../os.php';
 
 const PLATFORM_USER_ROLES = ['user', 'super-admin'];
 const PLATFORM_RESTAURANT_ROLES = ['user', 'manager', 'admin'];
@@ -86,6 +87,7 @@ function svc_platform_restaurant_dashboard(int $id): array
  */
 function svc_platform_restaurant_save(int $id, array $in, int $creatorId): array
 {
+    os_refuse_if_managed();
     $name = trim($in['name'] ?? '');
     $slug = trim($in['slug'] ?? '');
     $timezone = trim($in['timezone'] ?? '');
@@ -128,35 +130,7 @@ function svc_platform_restaurant_save(int $id, array $in, int $creatorId): array
         );
         $stmt->execute($values);
         $rid = (int)$stmt->fetchColumn();
-
-        $defaults = [
-            'time_slot_interval' => '30', 'default_turn_time' => '90', 'buffer_time' => '15',
-            'max_party_size' => '12', 'max_online_party_size' => '8', 'advance_booking_min_hours' => '2',
-            'advance_booking_max_days' => '30', 'same_day_cutoff_hours' => '1', 'max_covers_per_slot' => '0',
-            'online_table_hold_percent' => '70', 'confirmation_email_enabled' => '1', 'reminder_email_enabled' => '1',
-            'reminder_hours_before' => '24', 'cancellation_email_enabled' => '1',
-            'cancellation_policy' => 'Please cancel at least 2 hours before your reservation time.',
-        ];
-        $ins = $pdo->prepare("INSERT INTO settings (restaurant_id, setting_key, setting_value) VALUES (?, ?, ?)");
-        foreach ($defaults as $k => $v) $ins->execute([$rid, $k, $v]);
-
-        $pdo->prepare("INSERT INTO sections (restaurant_id, name, description, display_order, is_active) VALUES (?, 'Main Dining', 'Main dining area', 1, 1)")
-            ->execute([$rid]);
-        $pdo->prepare(
-            "INSERT INTO turn_times (restaurant_id, min_party_size, max_party_size, service_period, duration_minutes, buffer_minutes)
-             VALUES (?, 1, 4, 'all', 90, 15), (?, 5, 8, 'all', 105, 15), (?, 9, 12, 'all', 120, 15)"
-        )->execute([$rid, $rid, $rid]);
-
-        $hours = $pdo->prepare(
-            "INSERT INTO operating_hours (restaurant_id, day_of_week, service_name, open_time, close_time, first_seating, last_seating, is_active)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 1)"
-        );
-        foreach ([2, 3, 4, 5, 6] as $day) { // Tue-Sat
-            $hours->execute([$rid, $day, 'Lunch', '11:00:00', '14:30:00', '11:00:00', '14:00:00']);
-            $hours->execute([$rid, $day, 'Dinner', '17:00:00', '22:00:00', '17:00:00', '21:00:00']);
-        }
-        $hours->execute([$rid, 0, 'Brunch', '10:00:00', '14:30:00', '10:00:00', '14:00:00']);
-        $hours->execute([$rid, 0, 'Dinner', '17:00:00', '21:00:00', '17:00:00', '20:00:00']);
+        svc_platform_restaurant_seed($pdo, $rid);
 
         if ($creatorId > 0) {
             $pdo->prepare("INSERT INTO user_restaurants (user_id, restaurant_id, role, is_active) VALUES (?, ?, 'admin', 1)")
@@ -171,8 +145,42 @@ function svc_platform_restaurant_save(int $id, array $in, int $creatorId): array
     return svc_platform_restaurant_get($rid);
 }
 
+/** What every new restaurant starts with: default settings, a Main Dining section, turn times and opening hours. */
+function svc_platform_restaurant_seed(PDO $pdo, int $rid): void
+{
+    $defaults = [
+        'time_slot_interval' => '30', 'default_turn_time' => '90', 'buffer_time' => '15',
+        'max_party_size' => '12', 'max_online_party_size' => '8', 'advance_booking_min_hours' => '2',
+        'advance_booking_max_days' => '30', 'same_day_cutoff_hours' => '1', 'max_covers_per_slot' => '0',
+        'online_table_hold_percent' => '70', 'confirmation_email_enabled' => '1', 'reminder_email_enabled' => '1',
+        'reminder_hours_before' => '24', 'cancellation_email_enabled' => '1',
+        'cancellation_policy' => 'Please cancel at least 2 hours before your reservation time.',
+    ];
+    $ins = $pdo->prepare("INSERT INTO settings (restaurant_id, setting_key, setting_value) VALUES (?, ?, ?)");
+    foreach ($defaults as $k => $v) $ins->execute([$rid, $k, $v]);
+
+    $pdo->prepare("INSERT INTO sections (restaurant_id, name, description, display_order, is_active) VALUES (?, 'Main Dining', 'Main dining area', 1, 1)")
+        ->execute([$rid]);
+    $pdo->prepare(
+        "INSERT INTO turn_times (restaurant_id, min_party_size, max_party_size, service_period, duration_minutes, buffer_minutes)
+         VALUES (?, 1, 4, 'all', 90, 15), (?, 5, 8, 'all', 105, 15), (?, 9, 12, 'all', 120, 15)"
+    )->execute([$rid, $rid, $rid]);
+
+    $hours = $pdo->prepare(
+        "INSERT INTO operating_hours (restaurant_id, day_of_week, service_name, open_time, close_time, first_seating, last_seating, is_active)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 1)"
+    );
+    foreach ([2, 3, 4, 5, 6] as $day) { // Tue-Sat
+        $hours->execute([$rid, $day, 'Lunch', '11:00:00', '14:30:00', '11:00:00', '14:00:00']);
+        $hours->execute([$rid, $day, 'Dinner', '17:00:00', '22:00:00', '17:00:00', '21:00:00']);
+    }
+    $hours->execute([$rid, 0, 'Brunch', '10:00:00', '14:30:00', '10:00:00', '14:00:00']);
+    $hours->execute([$rid, 0, 'Dinner', '17:00:00', '21:00:00', '17:00:00', '20:00:00']);
+}
+
 function svc_platform_restaurant_set_active(int $id, bool $active, int $actorId): array
 {
+    os_refuse_if_managed();
     $r = svc_platform_restaurant_get($id);
     db()->prepare("UPDATE restaurants SET is_active = ?, updated_at = NOW() WHERE id = ?")->execute([$active ? 1 : 0, $id]);
     svc_log($id, $actorId, 'status_change', 'restaurant', $id,
@@ -215,6 +223,7 @@ function svc_platform_user_get(int $id): array
  */
 function svc_platform_user_save(int $id, array $in, int $actorId): array
 {
+    os_refuse_if_managed();
     $firstName = trim($in['first_name'] ?? '');
     $lastName = trim($in['last_name'] ?? '');
     $email = trim($in['email'] ?? '');
@@ -266,6 +275,7 @@ function svc_platform_user_save(int $id, array $in, int $actorId): array
 
 function svc_platform_user_set_active(int $id, bool $active, int $actorId): array
 {
+    os_refuse_if_managed();
     if ($id === $actorId && !$active) svc_fail('You cannot deactivate your own account.');
     $u = svc_platform_row('users', $id, 'User');
     db()->prepare("UPDATE users SET is_active = ?, updated_at = NOW() WHERE id = ?")->execute([$active ? 1 : 0, $id]);

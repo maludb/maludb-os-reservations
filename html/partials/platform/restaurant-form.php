@@ -3,6 +3,7 @@ require_once '../../../helpers/auth.php';
 require_once '../../../helpers/csrf.php';
 
 requireSuperAdmin();
+if (os_enabled()) { echo os_managed_notice('restaurant-form-os-managed'); exit; }
 
 $id = (int)($_GET['id'] ?? 0);
 $restaurant = null;

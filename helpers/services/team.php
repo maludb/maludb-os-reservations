@@ -6,6 +6,7 @@
  */
 
 require_once __DIR__ . '/_base.php';
+require_once __DIR__ . '/../os.php';
 require_once __DIR__ . '/../validation.php';
 
 const TEAM_ROLES = ['admin', 'manager', 'user'];
@@ -61,6 +62,7 @@ function svc_team_guard_last_admin(int $rid, int $userId, string $message): void
  */
 function svc_team_save(int $rid, int $userId, array $in): array
 {
+    os_refuse_if_managed();
     $firstName = trim($in['first_name'] ?? '');
     $lastName = trim($in['last_name'] ?? '');
     $email = trim($in['email'] ?? '');
@@ -164,6 +166,7 @@ function svc_team_issue_invite(PDO $pdo, int $userId): string
 /** Activate/deactivate a membership ($active = null toggles). Cannot target yourself. */
 function svc_team_set_active(int $rid, int $actorId, int $userId, ?bool $active = null): array
 {
+    os_refuse_if_managed();
     if ($userId === $actorId) {
         throw new ServiceError('You cannot deactivate yourself.', 'CONFLICT', 409, 'self');
     }

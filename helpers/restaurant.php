@@ -44,6 +44,11 @@ function getRestaurantBySlug($slug) {
 function getUserRestaurants($userId) {
     $pdo = db();
 
+    // Under the operating system: only the restaurants the kernel grants (super-admins included)
+    if (function_exists('os_enabled') && os_enabled()) {
+        return os_held_restaurants((int)$userId);
+    }
+
     // Check if user is a super-admin (by users.role column)
     $roleStmt = $pdo->prepare("SELECT role FROM users WHERE id = ?");
     $roleStmt->execute([$userId]);
@@ -76,9 +81,11 @@ function getUserRestaurants($userId) {
  * Get a user's role for a specific restaurant
  */
 function getUserRole($userId, $restaurantId) {
+    $os = function_exists('os_enabled') && os_enabled();
     $stmt = db()->prepare(
-        "SELECT role FROM user_restaurants
-         WHERE user_id = ? AND restaurant_id = ? AND is_active = 1"
+        "SELECT ur.role FROM user_restaurants ur JOIN restaurants r ON r.id = ur.restaurant_id
+         WHERE ur.user_id = ? AND ur.restaurant_id = ? AND ur.is_active = 1"
+        . ($os ? " AND ur.source = 'os' AND r.is_active = 1 AND r.os_scope_id IS NOT NULL" : "")
     );
     $stmt->execute([$userId, $restaurantId]);
     $row = $stmt->fetch();

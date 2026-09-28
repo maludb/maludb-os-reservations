@@ -3,6 +3,7 @@ require_once '../../../helpers/auth.php';
 require_once '../../../helpers/csrf.php';
 
 requireSuperAdmin();
+if (os_enabled()) { echo os_managed_notice('platform-user-form-os-managed'); exit; }
 
 $pdo = db();
 $id = (int)($_GET['id'] ?? 0);

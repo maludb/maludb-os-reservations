@@ -32,14 +32,17 @@ $users = $stmt->fetchAll();
                     <h5 class="card-title mb-0" id="users-card-title">
                         <i class="feather-user-plus me-2"></i>Staff Users
                     </h5>
+                    <?php if (!os_enabled()): ?>
                     <button class="btn btn-primary btn-sm" id="users-add-btn"
                             hx-get="/partials/settings/user-form.php"
                             hx-target="#users-modal-container"
                             hx-swap="innerHTML">
                         <i class="feather-plus me-1"></i> Add Staff Member
                     </button>
+                    <?php endif; ?>
                 </div>
                 <div class="card-body" id="users-card-body">
+                    <?php if (os_enabled()) echo os_managed_notice('users-os-managed'); ?>
 
                     <!-- Feedback message area -->
                     <div id="users-messages"></div>
@@ -93,6 +96,7 @@ $users = $stmt->fetchAll();
                                         <?php echo $u['last_login_at'] ? date('M j, Y g:ia', strtotime($u['last_login_at'])) : '<span class="text-muted">Never</span>'; ?>
                                     </td>
                                     <td class="text-end" id="users-actions-<?php echo $u['id']; ?>">
+                                        <?php if (!os_enabled()): ?>
                                         <button class="btn btn-outline-primary btn-sm me-1"
                                                 hx-get="/partials/settings/user-form.php?user_id=<?php echo $u['id']; ?>"
                                                 hx-target="#users-modal-container"
@@ -109,6 +113,7 @@ $users = $stmt->fetchAll();
                                                 title="<?php echo $u['membership_active'] ? 'Deactivate' : 'Activate'; ?>">
                                             <i class="feather-<?php echo $u['membership_active'] ? 'user-x' : 'user-check'; ?>"></i>
                                         </button>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>

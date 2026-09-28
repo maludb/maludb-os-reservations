@@ -7,6 +7,8 @@
  *
  * Auth: Authorization: Bearer <api key> (Settings → API Keys).
  * Super-admin keys may add X-Restaurant-Id to act on another restaurant.
+ * The Business OS kernel may also call as itself with its 60-second kernel token: it then sees one tool,
+ * app_roles — the roles ZozoCal offers and the rights each gives (os.app-roles/1) — and nothing else.
  *
  * The guest-facing reservation tools used by voice/SMS/email agents stay on
  * /api/mcp/server.php.
@@ -14,6 +16,7 @@
 
 require_once __DIR__ . '/../../../helpers/api/auth.php';
 require_once __DIR__ . '/../../../helpers/api/registry.php';
+require_once __DIR__ . '/../../../helpers/os.php';
 
 header('Content-Type: application/json');
 
@@ -34,8 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$ctx = api_token_context(api_bearer_token(), api_restaurant_header());
-if (!$ctx) {
+// The kernel, calling as itself for app_roles: no user, no restaurant, one read-only tool.
+$kernel = os_verify_kernel_token(api_bearer_token());
+$ctx = $kernel ? null : api_token_context(api_bearer_token(), api_restaurant_header());
+if (!$kernel && !$ctx) {
     http_response_code(401);
     header('WWW-Authenticate: Bearer');
     adminMcpError(-32000, 'Unauthorized: send a valid API key as a Bearer token.');
@@ -55,6 +60,39 @@ $id     = $request['id'] ?? null;
 // Notifications get no response body
 if (!array_key_exists('id', $request)) {
     http_response_code(202);
+    exit;
+}
+
+if ($kernel) {
+    $appRolesTool = ['name' => 'app_roles', 'description' => 'The roles this application offers and the rights each gives (os.app-roles/1).',
+        'inputSchema' => ['type' => 'object', 'properties' => new stdClass()],
+        'annotations' => ['title' => 'Roles and rights', 'readOnlyHint' => true, 'openWorldHint' => false]];
+    switch ($method) {
+        case 'initialize':
+            adminMcpEmit(['jsonrpc' => '2.0', 'id' => $id, 'result' => [
+                'protocolVersion' => in_array($params['protocolVersion'] ?? '', ['2025-06-18', '2025-03-26', '2024-11-05'], true) ? $params['protocolVersion'] : '2025-06-18',
+                'capabilities' => ['tools' => ['listChanged' => false]],
+                'serverInfo' => ['name' => 'ZozoCal Restaurant Admin', 'version' => '1.0.0'],
+            ]]);
+            break;
+        case 'ping':
+            adminMcpEmit(['jsonrpc' => '2.0', 'id' => $id, 'result' => new stdClass()]);
+            break;
+        case 'tools/list':
+            adminMcpEmit(['jsonrpc' => '2.0', 'id' => $id, 'result' => ['tools' => [$appRolesTool]]]);
+            break;
+        case 'tools/call':
+            if (($params['name'] ?? '') !== 'app_roles') {
+                adminMcpError(-32602, 'The kernel may call app_roles only.', $id);
+                break;
+            }
+            $doc = app_roles_document();
+            adminMcpEmit(['jsonrpc' => '2.0', 'id' => $id, 'result' => ['isError' => false, 'structuredContent' => $doc,
+                'content' => [['type' => 'text', 'text' => json_encode($doc, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)]]]]);
+            break;
+        default:
+            adminMcpError(-32601, "Method not found: {$method}", $id);
+    }
     exit;
 }
 

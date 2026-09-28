@@ -15,5 +15,5 @@ if (isset($_SESSION['user_id'])) {
 
 logout_user();
 
-header('Location: /login.php');
+header('Location: ' . (os_enabled() ? os_launcher_url() : '/login.php'));
 exit;
