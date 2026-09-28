@@ -11,7 +11,8 @@
  * Identifies the guest by from_number (guests).
  * Logs inbound and outbound messages to sms_message_log.
  *
- * Twilio webhook URL: https://yourdomain.com/api/sms/webhook.php
+ * Twilio webhook URL: <APP_URL>/api/sms/webhook.php — requests must carry the X-Twilio-Signature of the
+ * restaurant's own Twilio account (its auth token is the restaurant's sms_api_secret).
  * HTTP Method: POST
  */
 
@@ -120,6 +121,8 @@ if (!$restaurantId) {
 }
 
 webhookLog("RESTAURANT: {$restaurantId}");
+
+twilioRequireSignature($restaurantId);
 
 // --- Identify guest by from_number ---
 $guestId = null;

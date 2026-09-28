@@ -5,6 +5,36 @@
  */
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/availability.php'; // for getRestaurantSetting()
+require_once __DIR__ . '/../config/app.php';
+
+/**
+ * Twilio's request signature: base64 HMAC-SHA1, keyed with the account's auth token, over the URL Twilio
+ * called followed by every POST field name and value in name order.
+ */
+function twilioValidSignature(string $authToken, string $url, array $params, string $signature): bool
+{
+    if ($authToken === '' || $signature === '') return false;
+    ksort($params, SORT_STRING);
+    $data = $url;
+    foreach ($params as $name => $value) $data .= $name . $value;
+    return hash_equals(base64_encode(hash_hmac('sha1', $data, $authToken, true)), $signature);
+}
+
+/**
+ * Stop with 403 unless this webhook request was signed by the restaurant's own Twilio account.
+ * The URL is APP_URL plus the request path, as Twilio saw it (this server may sit behind a proxy).
+ */
+function twilioRequireSignature(int $restaurantId): void
+{
+    $url = rtrim((string)app_config('APP_URL', ''), '/') . ($_SERVER['REQUEST_URI'] ?? '');
+    $token = getRestaurantSetting($restaurantId, 'sms_api_secret', '');
+    if (!twilioValidSignature($token, $url, $_POST, $_SERVER['HTTP_X_TWILIO_SIGNATURE'] ?? '')) {
+        http_response_code(403);
+        header('Content-Type: text/xml');
+        echo '<Response></Response>';
+        exit;
+    }
+}
 
 /**
  * Send SMS via Twilio REST API
