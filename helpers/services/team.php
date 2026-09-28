@@ -55,7 +55,9 @@ function svc_team_guard_last_admin(int $rid, int $userId, string $message): void
  * A new user without a password is marked invited and sets one via Accept Invitation, with the
  * one-time code returned here as 'invite_code' (shown to the admin once; editing a pending invitation
  * issues a new code).
- * An existing account with the same email is linked to the restaurant instead.
+ * An existing account with the same email is linked to the restaurant instead, unchanged: its
+ * name and password belong to the person. On an edit, a password is set only for someone who
+ * works at no other restaurant and is not a platform super-admin.
  */
 function svc_team_save(int $rid, int $userId, array $in): array
 {
@@ -91,6 +93,15 @@ function svc_team_save(int $rid, int $userId, array $in): array
                 svc_team_guard_last_admin($rid, $userId, 'This is the only active admin; make someone else admin first.');
             }
             if ($password !== '') {
+                $stmt = $pdo->prepare(
+                    "SELECT u.role = 'super-admin'
+                            OR EXISTS (SELECT 1 FROM user_restaurants o WHERE o.user_id = u.id AND o.restaurant_id <> ?)
+                     FROM users u WHERE u.id = ?"
+                );
+                $stmt->execute([$rid, $userId]);
+                if ($stmt->fetchColumn()) {
+                    throw new ServiceError('This person also has access elsewhere, so only they can change their password.', 'FORBIDDEN', 403, 'pw');
+                }
                 $pdo->prepare("UPDATE users SET first_name = ?, last_name = ?, phone = ?, password_hash = ? WHERE id = ?")
                     ->execute([$firstName, $lastName, $phone ?: null, password_hash($password, PASSWORD_DEFAULT), $userId]);
             } else {
@@ -115,10 +126,6 @@ function svc_team_save(int $rid, int $userId, array $in): array
                 $stmt->execute([$userId, $rid]);
                 if ($stmt->fetch()) {
                     throw new ServiceError('This user is already a member of this restaurant.', 'CONFLICT', 409, 'exists');
-                }
-                if ($password !== '') {
-                    $pdo->prepare("UPDATE users SET first_name = ?, last_name = ?, phone = ?, password_hash = ? WHERE id = ?")
-                        ->execute([$firstName, $lastName, $phone ?: null, password_hash($password, PASSWORD_DEFAULT), $userId]);
                 }
             } else {
                 $hash = $password !== '' ? password_hash($password, PASSWORD_DEFAULT) : '!INVITED';
