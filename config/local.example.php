@@ -30,6 +30,10 @@ return [
     // (a long random string, e.g. openssl rand -hex 24). Empty = the webhook accepts nothing.
     'EMAIL_WEBHOOK_SECRET' => '',
 
+    // The public voice-agent demo pages (/demo.php, /call.php): '1' to turn them on. They let anyone
+    // start a Retell web call on the server-wide key below.
+    'DEMO_ENABLED' => '',
+
     // Retell account-wide fallback key, used when a restaurant has not saved its own (optional)
     'RETELL_DEFAULT_API_KEY' => '',
 

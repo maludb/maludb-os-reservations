@@ -1,3 +1,8 @@
+<?php
+// A public voice-agent demo that spends the server-wide Retell key: off unless DEMO_ENABLED is set.
+require_once __DIR__ . '/../config/app.php';
+if (!app_config('DEMO_ENABLED', '')) { http_response_code(404); exit; }
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
