@@ -1,6 +1,7 @@
 <?php
 require_once '../helpers/auth.php';
 require_once '../helpers/db.php';
+require_once '../helpers/csrf.php';
 
 requireAuth();
 $user = get_user();
@@ -475,7 +476,7 @@ $permittedNavItems = getPermittedNavItems($userPlatformRole, $currentRole);
                       <a class="dropdown-item d-flex align-items-center <?php echo ($r['id'] == ($_SESSION['current_restaurant_id'] ?? 0)) ? 'active' : ''; ?>"
                          href="#"
                          hx-post="/partials/auth/switch-restaurant.php"
-                         hx-vals='{"restaurant_id": <?php echo (int)$r['id']; ?>}'
+                         hx-vals='<?php echo htmlspecialchars(json_encode(['restaurant_id' => (int)$r['id'], 'csrf_token' => generate_csrf_token()]), ENT_QUOTES); ?>'
                          hx-target="#page-content"
                          id="restaurant-switch-<?php echo (int)$r['id']; ?>">
                         <i class="feather-home fs-5 me-2"></i>
