@@ -3382,3 +3382,9 @@ page into the database for the url of https://zozocal.com"
 - Branch `os-adoption`. Surveyed the code against the plugin's `os-adopt` survey (sign-in paths, guard, users/restaurants/memberships, API/MCP/webhooks/cron, keys, security gaps) and wrote it with the proposed decisions to `docs/os-adoption.md`.
 - Twelve security gaps to fix first, the worst: invitation acceptance by email alone (account takeover), a restaurant admin overwriting another restaurant's user's password, the Retell signature check commented out, unsigned SMS and email webhooks, one restaurant's Retell key used for all.
 - Archived the portable-install plan to `tasks/portable-install-plan.md`; the new plan is `tasks/todo.md`. Awaiting approval and four owner decisions.
+
+## 2026-09-28 — Owner decisions
+
+**Prompt:** (answers) roles "Keep its three"; publishing "app_roles on its MCP"; super-admin "Kernel super-admins"; billing "Leave as is".
+
+- Recorded in `docs/os-adoption.md` §2 and `tasks/todo.md` Step 0. Catalog key `reservations`, `/srv/apps/reservations`, database `subello_reservations`, port 8182, business area Sales & Service taken as proposed.

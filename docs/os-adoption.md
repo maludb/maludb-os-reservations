@@ -108,17 +108,17 @@ Code wins over documentation; every answer cites the code.
 
 ## 2. Decisions
 
-Proposed with a recommendation; **awaiting the owner** where marked.
+The owner decided every open item on 2026-09-28, each as recommended.
 
 | Decision | Proposal | State |
 |---|---|---|
 | Scope kind | `location` — each restaurant is a kernel site | decided 2026-09-25 |
-| Catalog key, DNS | `reservations` → `reservations.subello.com`; install path `/srv/apps/reservations`, database `subello_reservations`, internal port `127.0.0.1:8182` | proposed |
-| Business area | Sales & Service | proposed |
-| Roles | the three it has: `admin` "Restaurant admin" (capability `admin`, the one `is_admin`), `manager` "Manager" (`write`), `user` "Staff" (`write`); rights named after what the guards already allow | **awaiting the owner** |
-| How roles reach the kernel | an `app_roles` tool on the existing PHP MCP `html/api/mcp/admin.php`, admitting the kernel's 60-second token to that tool only | **awaiting the owner** |
-| Platform super-admin | the kernel's super-admin is ZozoCal's `super-admin` while `OS_ENABLED` is on; anyone else is `user` | **awaiting the owner** |
-| SaaS billing (products, subscriptions, invoices, prepay, the two billing crons) | left as it is, super-admin only; the billing crons are not installed by the OS deploy | **awaiting the owner** |
+| Catalog key, DNS | `reservations` → `reservations.subello.com`; install path `/srv/apps/reservations`, database `subello_reservations`, internal port `127.0.0.1:8182` | decided 2026-09-28 |
+| Business area | Sales & Service | decided 2026-09-28 |
+| Roles | the three it has: `admin` "Restaurant admin" (capability `admin`, the one `is_admin`), `manager` "Manager" (`write`), `user` "Staff" (`write`); rights named after what the guards already allow | decided 2026-09-28 |
+| How roles reach the kernel | an `app_roles` tool on the existing PHP MCP `html/api/mcp/admin.php`, admitting the kernel's 60-second token to that tool only | decided 2026-09-28 |
+| Platform super-admin | the kernel's super-admin is ZozoCal's `super-admin` while `OS_ENABLED` is on; anyone else is `user` | decided 2026-09-28 |
+| SaaS billing (products, subscriptions, invoices, prepay, the two billing crons) | left as it is, super-admin only; the billing crons are not installed by the OS deploy | decided 2026-09-28 |
 | Model and provider keys | stay per restaurant in `settings` | deferred 2026-09-25 |
 
 ## 3. What the adoption owes afterwards (the rest of the contract, not built here)

@@ -8,11 +8,11 @@ and, with `OS_ENABLED` off, exactly the application it is today. The survey, the
 
 Branch `os-adoption`. Each step is its own commit. Nothing on a production server; zozocal.com is untouched.
 
-## Step 0 — Owner decisions (docs/os-adoption.md §2)
-- [ ] Roles and their capabilities
-- [ ] How the roles reach the kernel (`app_roles` on the existing admin MCP)
-- [ ] Platform super-admin mapping
-- [ ] SaaS billing screens left as they are
+## Step 0 — Owner decisions (docs/os-adoption.md §2) — taken 2026-09-28, each as recommended
+- [x] Roles and their capabilities
+- [x] How the roles reach the kernel (`app_roles` on the existing admin MCP)
+- [x] Platform super-admin mapping
+- [x] SaaS billing screens left as they are
 
 ## Step 1 — Security fixes (before sign-on; one commit each, all small)
 - [ ] S1 Invitation needs a one-time code: adding a user with no password shows the admin a code once (hashed in `users`); accept-invite requires it
