@@ -1,0 +1,1 @@
+../docs/sql/nav_permissions.sql
