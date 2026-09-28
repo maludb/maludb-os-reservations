@@ -2,32 +2,51 @@
   "schema": "maludb-os.application/1",
   "catalog_key": "reservations",
   "name": "Reservations",
-  "description": "ZozoCal: restaurant reservations, tables and seating, guests, and the voice, SMS and email booking agents — one installation for every restaurant of the business, each restaurant a site.",
+  "description": "ZozoCal: restaurant reservations, tables and seating, guests, and the voice, SMS and email booking agents \u2014 one installation for every restaurant of the business, each restaurant a site.",
   "business_area": "Sales & Service",
   "category": "other",
   "icon": "feather-calendar",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "criticality": "normal",
-
   "vhost": {
     "label": "reservations",
     "document_root": "html",
     "internal_port_env": "APP_INTERNAL_PORT"
   },
-
   "database": {
     "suffix": "reservations",
     "migrations": "db",
-    "roles": { "rw": "reservations_rw", "records_ro": "reservations_records_ro", "activity_ro": "reservations_activity_ro" }
+    "roles": {
+      "rw": "reservations_rw",
+      "records_ro": "reservations_records_ro",
+      "activity_ro": "reservations_activity_ro"
+    }
   },
-
   "env": {
-    "required": ["APP_NAME", "APP_URL", "APP_KEY", "DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD",
-                 "APP_INTERNAL_PORT", "ACTION_TOKEN_KEY", "OS_ENABLED",
-                 "OS_APPLICATION_TOKEN", "OS_INTERNAL_URL", "OS_LAUNCHER_URL"],
-    "optional": ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "RETELL_DEFAULT_API_KEY", "EMAIL_WEBHOOK_SECRET", "DEMO_ENABLED"]
+    "required": [
+      "APP_NAME",
+      "APP_URL",
+      "APP_KEY",
+      "DB_HOST",
+      "DB_PORT",
+      "DB_NAME",
+      "DB_USER",
+      "DB_PASSWORD",
+      "APP_INTERNAL_PORT",
+      "ACTION_TOKEN_KEY",
+      "OS_ENABLED",
+      "OS_APPLICATION_TOKEN",
+      "OS_INTERNAL_URL",
+      "OS_LAUNCHER_URL"
+    ],
+    "optional": [
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_CLIENT_SECRET",
+      "RETELL_DEFAULT_API_KEY",
+      "EMAIL_WEBHOOK_SECRET",
+      "DEMO_ENABLED"
+    ]
   },
-
   "services": [
     "deploy/reservations-directory-sync.service",
     "deploy/reservations-directory-sync.timer",
@@ -36,17 +55,57 @@
     "deploy/reservations-voice-messages.service",
     "deploy/reservations-voice-messages.timer"
   ],
-
   "endpoints": [
-    { "name": "Admin MCP", "kind": "mcp", "path": "/api/mcp/admin.php", "auth_kind": "bearer",
-      "agent_reachable": false, "mcp_surface_version": "1.0" },
-    { "name": "Web UI", "kind": "ui", "path": "/app.php", "auth_kind": "none", "agent_reachable": false },
-    { "name": "Health", "kind": "http_api", "path": "/api/v1/health", "auth_kind": "none", "agent_reachable": false },
-    { "name": "REST API", "kind": "http_api", "path": "/api/v1/index.php", "auth_kind": "bearer", "agent_reachable": false }
+    {
+      "name": "Admin MCP",
+      "kind": "mcp",
+      "path": "/api/mcp/admin.php",
+      "auth_kind": "bearer",
+      "agent_reachable": false,
+      "mcp_surface_version": "1.0"
+    },
+    {
+      "name": "Web UI",
+      "kind": "ui",
+      "path": "/app.php",
+      "auth_kind": "none",
+      "agent_reachable": false
+    },
+    {
+      "name": "Health",
+      "kind": "http_api",
+      "path": "/api/v1/health",
+      "auth_kind": "none",
+      "agent_reachable": false
+    },
+    {
+      "name": "REST API",
+      "kind": "http_api",
+      "path": "/api/v1/index.php",
+      "auth_kind": "bearer",
+      "agent_reachable": false
+    }
   ],
-
-  "sso": { "path": "/sso", "logout_path": "/sso/logout" },
-  "directory": { "reads": true, "writes": false },
-  "scopes": { "kind": "location" },
-  "identity": { "profile": "adopted", "enabled_env": "OS_ENABLED" }
+  "sso": {
+    "path": "/sso",
+    "logout_path": "/sso/logout"
+  },
+  "directory": {
+    "reads": true,
+    "writes": false
+  },
+  "scopes": {
+    "kind": "location"
+  },
+  "identity": {
+    "profile": "adopted",
+    "enabled_env": "OS_ENABLED"
+  },
+  "shares": [
+    {
+      "tool": "covers_by_service",
+      "description": "Booked covers per date and service at one restaurant",
+      "scoped": true
+    }
+  ]
 }

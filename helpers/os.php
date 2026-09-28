@@ -228,6 +228,57 @@ function app_roles_document(): array
     ];
 }
 
+/**
+ * The tools this application shares with other applications through the kernel (maludb-os.json shares[], K7):
+ * the kernel's own token may call these and app_roles, nothing else.
+ */
+function os_shared_tools(): array
+{
+    $m = json_decode((string)@file_get_contents(__DIR__ . '/../maludb-os.json'), true);
+    return array_values(array_filter(array_map(fn($s) => (string)($s['tool'] ?? ''), (array)($m['shares'] ?? []))));
+}
+
+/**
+ * Shared tool covers_by_service (K7): booked covers per date and service at one restaurant — the restaurant the
+ * kernel names by this application's own scope id. Counts every reservation not cancelled and not a no-show; a
+ * reservation's service is the operating-hours service whose open–close window holds its time that weekday, else
+ * "Other". At most 62 days. Guests are not named.
+ */
+function os_covers_by_service(array $args): array
+{
+    require_once __DIR__ . '/services/_base.php';
+    $scopeId = (int)($args['scope_id'] ?? 0);
+    $from = (string)($args['from'] ?? '');
+    $to = (string)($args['to'] ?? '');
+    $d1 = DateTime::createFromFormat('!Y-m-d', $from);
+    $d2 = DateTime::createFromFormat('!Y-m-d', $to);
+    if ($scopeId <= 0 || !$d1 || !$d2 || $d2 < $d1 || $d1->diff($d2)->days > 62) {
+        throw new ServiceError('scope_id, from and to (YYYY-MM-DD, at most 62 days apart) are required.', 'VALIDATION_ERROR', 422);
+    }
+    $st = db()->prepare("SELECT id, name, timezone FROM restaurants WHERE os_scope_id = ?");
+    $st->execute([$scopeId]);
+    $r = $st->fetch(PDO::FETCH_ASSOC);
+    if (!$r) throw new ServiceError('No restaurant for that site.', 'NOT_FOUND', 404);
+    $st = db()->prepare(
+        "SELECT res.reservation_date AS date, COALESCE(h.service_name, 'Other') AS service,
+                count(*) AS reservations, sum(res.party_size) AS covers
+           FROM reservations res
+           LEFT JOIN LATERAL (SELECT oh.service_name FROM operating_hours oh
+                               WHERE oh.restaurant_id = res.restaurant_id AND oh.is_active = 1
+                                 AND oh.day_of_week = EXTRACT(DOW FROM res.reservation_date)
+                                 AND res.reservation_time >= oh.open_time AND res.reservation_time < oh.close_time
+                               ORDER BY oh.open_time LIMIT 1) h ON true
+          WHERE res.restaurant_id = ? AND res.reservation_date BETWEEN ? AND ?
+            AND res.status NOT IN ('cancelled', 'no_show')
+          GROUP BY 1, 2 ORDER BY 1, 2"
+    );
+    $st->execute([(int)$r['id'], $from, $to]);
+    return ['schema' => 'reservations.covers-by-service/1', 'restaurant' => $r['name'], 'timezone' => $r['timezone'],
+        'from' => $from, 'to' => $to,
+        'rows' => array_map(fn($x) => ['date' => $x['date'], 'service' => $x['service'],
+            'reservations' => (int)$x['reservations'], 'covers' => (int)$x['covers']], $st->fetchAll(PDO::FETCH_ASSOC))];
+}
+
 /* ---------- Claims and the change feed → ZozoCal's own tables ---------- */
 
 /** The highest ZozoCal role in a claims or feed scope entry (roles, else role), or null. */
