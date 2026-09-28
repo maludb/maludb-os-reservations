@@ -1,27 +1,23 @@
 <?php
 /**
  * Generate Retell Agent Import JSON with actual server URLs
- * Connects to ZozoCal's MCP server for reservation tools
- * Pass ?slug=your-restaurant to generate for a specific restaurant
+ * Connects to ZozoCal's MCP server for reservation tools.
+ * It carries the restaurant's MCP key, so only an admin of the current restaurant may download it.
  */
-require_once __DIR__ . '/../../helpers/db.php';
+require_once __DIR__ . '/../../helpers/auth.php';
+
+requireAdmin();
 
 $pdo = db();
 
-// Look up restaurant by slug param, or use the first restaurant
-$slugParam = trim($_GET['slug'] ?? '');
-if ($slugParam !== '') {
-    $stmt = $pdo->prepare("SELECT id, name, slug FROM restaurants WHERE slug = ? LIMIT 1");
-    $stmt->execute([$slugParam]);
-} else {
-    $stmt = $pdo->query("SELECT id, name, slug FROM restaurants ORDER BY id ASC LIMIT 1");
-}
+$stmt = $pdo->prepare("SELECT id, name, slug FROM restaurants WHERE id = ?");
+$stmt->execute([currentRestaurantId()]);
 $restaurant = $stmt->fetch();
 
 if (!$restaurant) {
     http_response_code(404);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'Restaurant not found. Pass ?slug=your-restaurant-slug']);
+    echo json_encode(['error' => 'No restaurant selected.']);
     exit;
 }
 
